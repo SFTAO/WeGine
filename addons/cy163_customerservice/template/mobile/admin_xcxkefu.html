@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html style="background:#f5f5f5;">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1,user-scalable=no">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>小程序管理员中心</title>
+    <link rel="stylesheet" href="{NEWSTATIC_ROOT}/jqueryweui/css/weui.min.css"/>
+	<link rel="stylesheet" href="{NEWSTATIC_ROOT}/jqueryweui/css/jquery-weui.min.css"/>
+	<link rel="stylesheet" href="{NEWSTATIC_ROOT}/common.css?v=20190507"/>
+    <script>
+        var deviceWidth = document.documentElement.clientWidth;
+        document.documentElement.style.fontSize = deviceWidth / 7.5 + 'px';
+    </script>
+	<style>
+	.kefulist .item{padding:0.2rem;border-bottom:solid 1px #f1f1f1;background:#fff;}
+	.kefulist .item img{width:0.8rem;height:0.8rem;border-radius:100%;}
+	.kefulist .item .right{
+		margin-left:0.2rem;
+	}
+	.kefulist .item .right .kefuname{
+		line-height:0.8rem;
+		font-size:0.3rem;
+		color:#333;
+	}
+	.kefulist .item .right .fname{width:1.2rem;line-height:0.8rem;font-size:0.26rem;color:#999;}
+	.kefulist .item .right .jtyou{width:0.4rem;height:0.4rem;margin-top:0.2rem;margin-left:0.1rem;}
+	
+	.copyright a{color:{php echo $this->module["config"]['temcolor']};}
+	</style>
+</head>
+<body>
+
+<div class="kefulist">
+	{if $cservicelist}
+		{loop $cservicelist $row}
+			<a href="{php echo $this->createMobileUrl('xcxqdadmin',array('content'=>$row['content'],'op'=>'kefudetail'))}">
+			<div class="item flex">
+				<img src="{php echo tomedia($row['thumb'])}">
+				<div class="right flex flex1">
+					<div class="kefuname textellipsis1 flex1">{$row['name']}</div>
+					<div class="fname text-r"></div>
+					<img src="{NEWSTATIC_ROOT}/jt-you.png" class="jtyou" />
+				</div>
+			</div>
+			</a>
+		{/loop}
+	{else}
+		<div class="nodata text-c">
+			<img src="{NEWSTATIC_ROOT}/nodata.png" />
+			<div class="text">暂没有客服哦</div>
+		</div>
+	{/if}
+</div>
+
+<div class="copyright text-c">{php echo nl2br($this->module["config"]['copyright'])}</div>
+<script src="{NEWSTATIC_ROOT}/jqueryweui/js/jquery-3.1.1.min.js"></script>
+<script src="{NEWSTATIC_ROOT}/jqueryweui/js/jquery-weui.min.js"></script>
+<script src="{NEWSTATIC_ROOT}/jqueryweui/js/fastclick.js"></script>
+<script type="text/javascript">
+$(function(){
+	FastClick.attach(document.body);
+})
+</script>			
+</body>
+</html>

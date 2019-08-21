@@ -1,0 +1,466 @@
+{template 'common/header'}
+<ul class="nav nav-tabs">
+	<li {if $operation == 'display'}class="active"{/if}><a href="{php echo $this->createWebUrl('group', array('op' => 'display'))}">群聊中心</a></li>
+	<li {if $operation == 'post'}class="active"{/if}><a href="{php echo $this->createWebUrl('group', array('op' => 'post'))}">{if !$id}添加群聊{else}编辑群聊{/if}</a></li>
+	{if $operation == 'addmember'}
+		<li class="active"><a href="###">添加成员</a></li>
+	{/if}
+</ul>
+{if $operation == 'post'}
+<div class="main">
+	<form action="" method="post" class="form-horizontal form" enctype="multipart/form-data" id="form1">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				{if !$id}添加群聊{else}编辑群聊{/if}
+			</div>
+			<div class="panel-body">
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label"><span style="color:red">*</span>群聊名称</label>
+					<div class="col-sm-9 col-xs-12">
+						<input type="text" name="groupname" class="form-control" value="{$group['groupname']}" />
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label"><span style="color:red">*</span>群聊头像</label>
+					<div class="col-sm-9 col-xs-12">
+						{php echo tpl_form_field_image('thumb', $group['thumb'])}
+						<span class="help-block" style="color:#900;">为了保证美观，请上传180*180尺寸的图片</span>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">只允许管理员发言</label>
+					<div class="col-sm-9 col-xs-12">
+						<label class="radio-inline">
+							<input name="jinyan" value="1" {if $group['jinyan'] == 1}checked="checked"{/if} type="radio"> 是
+						</label>
+						<label class="radio-inline">
+							<input name="jinyan" value="0" {if $group['jinyan'] == 0}checked="checked"{/if} type="radio"> 否
+						</label>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">关注才能申请进群</label>
+					<div class="col-sm-9 col-xs-12">
+						<label class="radio-inline">
+							<input name="isguanzhu" value="1" {if $group['isguanzhu'] == 1}checked="checked"{/if} type="radio"> 开启
+						</label>
+						<label class="radio-inline">
+							<input name="isguanzhu" value="0" {if $group['isguanzhu'] == 0}checked="checked"{/if} type="radio"> 关闭
+						</label>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">是否审核才能进群</label>
+					<div class="col-sm-9 col-xs-12">
+						<label class="radio-inline">
+							<input name="isshenhe" value="1" {if $group['isshenhe'] == 1}checked="checked"{/if} type="radio"> 否
+						</label>
+						<label class="radio-inline">
+							<input name="isshenhe" value="0" {if $group['isshenhe'] == 0}checked="checked"{/if} type="radio"> 是
+						</label>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">群通知默认类型</label>
+					<div class="col-sm-9 col-xs-12">
+						<label class="radio-inline">
+							<input name="autotx" value="1" {if $group['autotx'] == 1}checked="checked"{/if} type="radio"> 开启
+						</label>
+						<label class="radio-inline">
+							<input name="autotx" value="0" {if $group['autotx'] == 0}checked="checked"{/if} type="radio"> 关闭
+						</label>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">群人员最多人数</label>
+					<div class="col-sm-2 col-xs-12">		
+						<div class="input-group">
+							<input class="form-control" name="maxnum" value="{$group['maxnum']}" type="text">
+							<span class="input-group-addon">人</span>
+						</div>
+						<span class="help-block" style="color:#900;">填0表示不限制</span>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">群聊欢迎语</label>
+					<div class="col-sm-7 col-xs-12">
+						<textarea class="form-control" name="autoreply">{$group['autoreply']}</textarea>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">快捷消息</label>
+					<div class="col-sm-7 col-xs-12">
+						<textarea class="form-control" name="quickcon">{$group['quickcon']}</textarea>
+						<span class="help-block" style="color:#900;">多个可用|隔开</span>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">选择管理员</label>
+					<div class="col-sm-9 col-xs-12">
+						<select name="admin" class="form-control">
+							<option value="0">--请选择管理员--</option>
+							{loop $cservicelist $crow}
+							<option value="{$crow['content']}" {if $group['admin'] == $crow['content']}selected="selected"{/if}>{$crow['name']}</option>
+							{/loop}
+						</select>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">是否通知所有成员</label>
+					<div class="col-sm-9 col-xs-12">
+						<label class="radio-inline">
+							<input name="isfs" value="1" {if $group['isfs'] == 1}checked="checked"{/if} type="radio"> 是
+						</label>
+						<label class="radio-inline">
+							<input name="isfs" value="0" {if $group['isfs'] == 0}checked="checked"{/if} type="radio"> 否
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="form-group col-sm-12">
+			<input type="hidden" name="id" value="{$id}" />
+			<input type="submit" name="submit" value="提交" class="btn btn-primary col-lg-1" />
+			<input type="hidden" name="token" value="{$_W['token']}" />
+		</div>
+	</form>
+</div>
+{elseif $operation == 'addmember'}
+<div class="main">
+	<form action="" method="post" class="form-horizontal form" enctype="multipart/form-data" id="form1">
+		<div class="panel panel-default">
+			<div class="panel-heading">添加成员</div>
+			<div class="panel-body">
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label"><span style="color:red">*</span>Openid</label>
+					<div class="col-sm-9 col-xs-12">
+						<input type="text" name="openid" class="form-control" />
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">消息通知提醒</label>
+					<div class="col-sm-9 col-xs-12">
+						<label class="radio-inline">
+							<input name="txkaiguan" value="1" type="radio"> 开启
+						</label>
+						<label class="radio-inline">
+							<input name="txkaiguan" value="0" checked="checked" type="radio"> 关闭
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="form-group col-sm-12">
+			<input type="hidden" name="op" value="doaddmember" />
+			<input type="hidden" name="id" value="{$id}" />
+			<input type="submit" name="submit" value="提交" class="btn btn-primary col-lg-1" />
+			<input type="hidden" name="token" value="{$_W['token']}" />
+		</div>
+	</form>
+</div>
+{elseif $operation == 'display'}
+<div class="main">
+	<div class="panel panel-default">
+		<div class="panel-body table-responsive">
+			<form action="{php echo $this->createWebUrl('group')}" method="post">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th style="width:5%;">选择</th>
+						<th style="width:35%;">群聊链接</th>
+						<th style="width:10%;">群聊名称</th>
+						<th style="width:10%;">群聊头像</th>
+						<th style="text-align:right;">操作</th>
+					</tr>
+				</thead>
+				<tbody>
+				{loop $grouplist $row}
+				<tr>
+					<td><input class="form-control" style="width:15px;height:15px;" name="groupid[{$row['id']}]" value="{$row['id']}" type="checkbox"></td>
+					<td><input class="form-control" name="serviceurl" value="{$row['url']}" type="text"></td>
+					<td>{$row['groupname']}</td>
+					<td><img src="{php echo tomedia($row['thumb']);}" width="50" height="50" /></td>
+					<td style="text-align:right;">
+						<button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#renModal{$row['id']}">群成员</button>&nbsp;&nbsp;
+						<a href="{php echo $this->createWebUrl('group', array('op' => 'addmember', 'id' => $row['id']))}" class="btn btn-success btn-sm">添加成员</a>&nbsp;&nbsp;
+						<button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#formModal{$row['id']}">群聊记录</button>&nbsp;&nbsp;
+						<a href="{php echo $this->createWebUrl('group', array('op' => 'post', 'id' => $row['id']))}" class="btn btn-default btn-sm" title="编辑"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;
+						<button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#qrcode{$row['id']}">链接、二维码</button>&nbsp;&nbsp;
+						<a href="{php echo $this->createWebUrl('group', array('op' => 'delete', 'id' => $row['id']))}" onclick="return confirm('删除群聊同时将删除该群聊的全部聊天记录，确认吗？');return false;" class="btn btn-default btn-sm" title="删除"><i class="fa fa-times"></i></a>
+					</td>
+				</tr>
+				{/loop}
+				<tr>
+					<td colspan="5">
+						<input type="hidden" name="op" value="deleteall" />
+						<input name="submit" class="btn btn-danger" value="批量删除聊天记录" type="submit">
+						<input name="token" value="{$_W['token']}" type="hidden">
+					</td>
+				</tr>
+				</tbody>
+			</table>
+			</form>
+		</div>
+	</div>
+</div>
+	{loop $grouplist $row}
+	<div class="modal fade" id="qrcode{$row['id']}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+					<h4 class="modal-title">链接、二维码</h4>
+				</div>
+				<div class="modal-body table-responsive" style="text-align:center;">
+					<div>{$row['url']}</div>
+					<div><img src="{$row['qrcode']}" style="margin:0 auto;" /></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="renModal{$row['id']}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+					<h4 class="modal-title">{$row['groupname']}群成员</h4>
+				</div>
+				<div class="modal-body table-responsive" style="max-height:400px;overflow-y:auto;">					
+					<table class="table table-hover table-striped table-condensed">
+						<thead>
+							<tr>
+								<th style="width:10%;">头像</th>
+								<th style="width:15%;">昵称</th>
+								<th style="width:25%;">openid/状态</th>
+								<th style="width:15%;">加入时间</th>
+								<th style="width:10%;">消息提醒</th>
+								<th style="text-align:right;">操作</th>
+							</tr>
+						</thead>
+						<tbody>						
+							{loop $row['member'] $rowrow}
+								<tr class="trre{$rowrow['id']}">
+									<td><img src="{$rowrow['avatar']}" width="50" height="50" /></td>
+									<td>
+										<input type="text" data-id="{$rowrow['id']}" class="form-control changenick" value="{$rowrow['nickname']}" />
+									</td>
+									<td>
+										<div><span class="label label-success">{$rowrow['openid']}</span></div>
+										<div style="margin-top:5px;">
+										{if $rowrow['status'] == 0}
+											{if $rowrow['isdel'] == 1}
+												<span class="label label-danger">已退出</span>
+											{else}
+												<span class="label label-warning">未加入</span>
+											{/if}
+										{else}
+											<span class="label label-info">已加入</span>
+										{/if}
+										</div>
+									</td>
+									<td>
+										{if $rowrow['intime'] > 0}
+										<span class="label label-info">{php echo date("Y-m-d H:i:s",$rowrow['intime'])}</span>
+										{else}
+										<span class="label label-info">无</span>
+										{/if}
+									</td>
+									<td>
+										<input type="checkbox" class="kaiguan" data-id="{$rowrow['id']}" {if $rowrow['txkaiguan'] == 1}checked="checked"{/if} name="txkaiguan" value="{$rowrow['txkaiguan']}"> 开启
+									</td>
+									<td style="text-align:right;">
+										{if $row['admin'] == $rowrow['openid']}
+											<button class="btn btn-danger btn-sm" type="button">管理员不能删除</button>
+										{else}
+											{if $rowrow['status'] == 0 && $rowrow['isdel'] == 0}
+											<button class="btn btn-success btn-sm shenhemember" data-id="{$rowrow['id']}" type="button">审核</button>
+											{/if}
+											<a data-id="{$rowrow['id']}" class="btn btn-default btn-sm delmember" title="删除"><i class="fa fa-times"></i></a>
+										{/if}
+									</td>
+								</tr>
+							{/loop}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="formModal{$row['id']}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+					<h4 class="modal-title">{$row['groupname']}群聊记录</h4>
+				</div>
+				<div class="modal-body table-responsive" style="height:400px;overflow:scroll;">					
+					<table class="table table-hover table-striped table-condensed">
+						<thead>
+							<tr>
+								<th style="width:15%;">昵称</th>
+								<th>聊天内容</th>
+								<th style="width:15%;">时间</th>
+								<th style="width:10%;text-align:right;">操作</th>
+							</tr>
+						</thead>
+						<tbody>
+							{loop $row['chatlist'] $rowchat}
+								<tr class="trre{$rowchat['id']}">
+									<td>
+										<span class="label label-success">{$rowchat['nickname']}</span>
+									</td>
+									<td style="overflow:auto;text-overflow:initial;white-space:inherit;">
+										{if $rowchat['type'] == 3}
+										<img src="{$rowchat['content']}" onclick="showimage('{$rowchat['content']}');" style="max-width:100px;cursor:pointer;" />
+										{elseif $rowchat['type'] == 5}
+										<span class="label label-success">[语音消息]</span>
+										{else}
+											{$rowchat['content']}
+										{/if}
+									</td>
+									<td>
+										<span class="label label-info">{php echo date("Y-m-d H:i:s",$rowchat['time'])}</span>
+									</td>
+									<td style="text-align:right;">
+										<a data-id="{$rowchat['id']}" class="btn btn-default btn-sm deldu" title="删除"><i class="fa fa-times"></i></a>
+									</td>
+								</tr>
+							{/loop}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	{/loop}
+{/if}
+
+<div id="ShowImage_Form" tabindex="-2" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">     <div class="modal-dialog">
+	<div class="modal-content">    
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+			<h4 class="modal-title">图片信息</h4>
+		</div>
+		<div class="modal-body">
+			<div id="img_show" style="text-align:center;"></div>
+		</div>
+	</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	$(".kaiguan").change(function(){
+		var memberid = $(this).attr('data-id');
+		$.ajax({
+			url:"{php echo $this->createWebUrl('group')}",
+			data:{
+				id:memberid,
+				op:'changekaiguan',
+			},
+			dataType:'json',
+			type:'post',        
+			success:function(data){
+				alert(data.msg);
+			},
+		});
+	});
+	$('.changenick').change(function(){
+		if(confirm("确定要修改昵称吗？")){
+			var groupmemberid = $(this).attr('data-id');
+			$.ajax({
+				url:"{php echo $this->createWebUrl('group')}",
+				data:{
+					id:groupmemberid,
+					op:'changenickname',
+					nickname:$(this).val(),
+				},
+				dataType:'json',
+				type:'post',        
+				success:function(data){
+					alert(data.msg);
+				},
+			});
+		}
+	});
+	$('.deldu').click(function(){
+		if(confirm("确定要删除这条聊天记录吗？")){
+			var chatid = $(this).attr('data-id');
+			$.ajax({
+				url:"{php echo $this->createWebUrl('group')}",
+				data:{
+					id:chatid,
+					op:'deletedu',
+				},
+				dataType:'json',
+				type:'post',        
+				success:function(data){
+					if(data.error == 1){
+						alert(data.msg);
+					}else{
+						$('.trre'+chatid).remove();
+					}
+				},
+			});
+		}
+	});
+	
+	$('.shenhemember').click(function(){
+		if(confirm("审核群成员，确认吗？")){
+			var chatid = $(this).attr('data-id');
+			$.ajax({
+				url:"{php echo $this->createWebUrl('group')}",
+				data:{
+					id:chatid,
+					op:'shenhemember',
+				},
+				dataType:'json',
+				type:'post',        
+				success:function(data){
+					alert(data.msg);
+				},
+			});
+		}
+	});
+	
+	
+	$('.delmember').click(function(){
+		if(confirm("删除群成员，确认吗？")){
+			var chatid = $(this).attr('data-id');
+			$.ajax({
+				url:"{php echo $this->createWebUrl('group')}",
+				data:{
+					id:chatid,
+					op:'delmember',
+				},
+				dataType:'json',
+				type:'post',        
+				success:function(data){
+					if(data.error == 1){
+						alert(data.msg);
+					}else{
+						$('.trre'+chatid).remove();
+					}
+				},
+			});
+		}
+	});
+})
+function showimage(source)
+ {
+	 $("#ShowImage_Form").find("#img_show").html("<image src='"+source+"' class='carousel-inner img-responsive img-rounded' style='max-width:50%;margin:0 auto;' />");
+	 $("#ShowImage_Form").modal();
+ }
+</script>
+{template 'common/footer'}

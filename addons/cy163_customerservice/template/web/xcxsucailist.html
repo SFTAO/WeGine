@@ -1,0 +1,204 @@
+{template 'common/header'}
+<ul class="nav nav-tabs">
+	<li><a href="{php echo $this->createWebUrl('xcxcservice',array('op' =>'display'))}">小程序客服</a></li>
+	<li><a href="{php echo $this->createWebUrl('xcxcservice',array('op' =>'post'))}">添加小程序客服</a></li>
+	<li {if $operation == "sucai"}class="active"{/if}><a href="{php echo $this->createWebUrl('xcxcservice', array('op' => 'sucai','id'=>$id))}">素材管理</a></li>
+	<li {if $operation == "editsucai" && $scid <= 0}class="active"{/if}><a href="{php echo $this->createWebUrl('xcxcservice', array('op' => 'editsucai','id'=>$id))}">添加素材</a></li>
+	{if $operation == "editsucai" && $scid > 0}
+		<li class="active"><a href="###">编辑素材</a></li>
+	{/if}
+</ul>
+
+{if $operation == 'sucai'}
+<div class="main">	
+	<div class="panel panel-default">
+		<div class="panel-heading">[{$cservice['name']}]的素材</div>
+		<div class="panel-body table-responsive">
+			<table class="table table-hover table-striped table-condensed">
+				<thead>
+					<tr>
+						<th style="width:30%;">名称</th>
+						<th style="width:20%;">类型</th>
+						<th style="text-align:right;">操作</th>
+					</tr>
+				</thead>
+				<tbody>
+				{loop $list $row}
+				<tr>
+					<td><span class="label label-default">{$row['name']}</span></td>
+					<td>
+						<div>
+							{if $row['msgtype'] == 'link'}
+								[图文]
+							{elseif $row['msgtype'] == 'text'}
+								[文字]
+							{elseif $row['msgtype'] == 'image'}
+								[图片]
+							{elseif $row['msgtype'] == 'miniprogrampage'}
+								[小程序卡片]
+							{/if}
+						</div>
+					</td>
+					<td style="text-align:right;">
+						<a href="{php echo $this->createWebUrl('xcxcservice', array('op' => 'editsucai', 'scid' => $row['id'],'id'=>$row['kfid']))}" class="btn btn-default btn-sm" title="编辑"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;
+						<a href="{php echo $this->createWebUrl('xcxcservice', array('op' => 'delsucai', 'scid' => $row['id']))}" onclick="return confirm('确认吗？');return false;" class="btn btn-default btn-sm" title="删除"><i class="fa fa-times"></i></a>
+					</td>
+				</tr>
+				{/loop}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+
+})
+</script>
+{elseif $operation == 'editsucai'}
+<style>
+.hide{display:none;}
+</style>
+<div class="main">
+	<form action="" method="post" class="form-horizontal form" enctype="multipart/form-data" onsubmit='return formcheck()'>
+		<input type="hidden" name="scid" value="{$sucai['id']}" />
+		<input type="hidden" name="kfid" value="{$id}" />
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">排序</label>
+					<div class="col-sm-9 col-xs-12">
+						<input type="text" name="paixu" class="form-control" value="{$sucai['paixu']}" />
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">素材名称</label>
+					<div class="col-sm-9 col-xs-12">
+						<input type="text" name="name" class="form-control" value="{$sucai['name']}" />
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">类型</label>
+					<div class="col-sm-9 col-xs-12">
+						<label class='radio-inline'>
+							<input type='radio' name='msgtype' value='link' {if $sucai['msgtype']=='link'}checked{/if} /> 图文
+						</label>
+						<label class='radio-inline'>
+							<input type='radio' name='msgtype' value='text' {if $sucai['msgtype']=='text'}checked{/if} /> 文字
+						</label>
+						<label class='radio-inline'>
+							<input type='radio' name='msgtype' value='image' {if $sucai['msgtype']=='image'}checked{/if} /> 图片
+						</label>
+						<!--
+						<label class='radio-inline'>
+							<input type='radio' name='msgtype' value='miniprogrampage' {if $sucai['msgtype']=='miniprogrampage'}checked{/if} /> 小程序卡片
+						</label>
+						-->
+					</div>
+				</div>
+				
+				{if $sucai && ($sucai['msgtype'] == 'text' || $sucai['msgtype'] == 'link')}
+				<div class="form-group typetext typelink">
+				{else}
+				<div class="form-group typetext typelink hide">
+				{/if}
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">消息标题</label>
+					<div class="col-sm-9 col-xs-12">
+						<input type="text" name="title" class="form-control" value="{$sucai['title']}" />
+						<span class="help-block" style="color:red;">*图文链接消息标题或小程序卡片消息标题或文本消息</span>
+					</div>
+				</div>
+				
+				{if $sucai && $sucai['msgtype'] == 'image'}
+				<div class="form-group typeimage">
+				{else}
+				<div class="form-group typeimage hide">
+				{/if}
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">图片</label>
+					<div class="col-sm-9 col-xs-12">
+						{php echo tpl_form_field_image('thumb', $sucai['thumb'], '', array('extras' => array('text' => 'readonly')))}
+						<div class="help-block" style="color:red;">*消息类型为图片时候起作用</div>
+					</div>
+				</div>
+				
+				{if $sucai && $sucai['msgtype'] == 'link'}
+				<div class="form-group typelink">
+				{else}
+				<div class="form-group typelink hide">
+				{/if}
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">图文链接消息</label>
+					<div class="col-sm-9 col-xs-12">
+						<textarea class="form-control" name="description" style="height:100px;">{$sucai['description']}</textarea>
+					</div>
+				</div>
+				{if $sucai && $sucai['msgtype'] == 'link'}
+				<div class="form-group typelink">
+				{else}
+				<div class="form-group typelink hide">
+				{/if}
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">图文连接</label>
+					<div class="col-sm-9 col-xs-12">
+						<input type="text" name="url" class="form-control" value="{$sucai['url']}" />
+						<span class="help-block" style="color:red;">*图文链接消息被点击后跳转的链接</span>
+					</div>
+				</div>
+				{if $sucai && $sucai['msgtype'] == 'link'}
+				<div class="form-group typelink">
+				{else}
+				<div class="form-group typelink hide">
+				{/if}
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">图文图片</label>
+					<div class="col-sm-9 col-xs-12">
+						{php echo tpl_form_field_image('thumb_url', $sucai['thumb_url'], '', array('extras' => array('text' => 'readonly')))}
+						<div class="help-block" style="color:red;">*图文链接消息的图片链接，支持 JPG、PNG 格式，较好的效果为大图 640 X 320，小图 80 X 80</div>
+					</div>
+				</div>
+	
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">是否自动回复</label>
+					<div class="col-sm-9 col-xs-12">
+						<label class='radio-inline'>
+							<input type='radio' name='iszdhf' value='1' {if $sucai['iszdhf']==1}checked{/if} /> 是
+						</label>
+						<label class='radio-inline'>
+							<input type='radio' name='iszdhf' value='0' {if $sucai['iszdhf']==0}checked{/if} /> 否
+						</label>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">自动回复触发关键词</label>
+					<div class="col-sm-9 col-xs-12">
+						<input type="text" name="zdhftitle" class="form-control" value="{$sucai['zdhftitle']}" />
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">自动回复匹配类型</label>
+					<div class="col-sm-9 col-xs-12">
+						<label class='radio-inline'>
+							<input type='radio' name='zdhftype' value='1' {if $sucai['zdhftype']==1}checked{/if} /> 精确
+						</label>
+						<label class='radio-inline'>
+							<input type='radio' name='zdhftype' value='0' {if $sucai['zdhftype']==0}checked{/if} /> 包含
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="form-group col-sm-12">
+			<input type="submit" name="submit" value="提交" class="btn btn-primary col-lg-1" />
+			<input type="hidden" name="token" value="{$_W['token']}" />
+		</div>
+	</form>
+</div>
+<script>
+$(function(){
+	$("input[name='msgtype']").change(function(){
+		$(".typetext,.typeimage,.typelink").addClass("hide");
+		$(".type"+$(this).val()).removeClass("hide");
+	});
+})
+</script>
+{/if}
+{template 'common/footer'}

@@ -1,0 +1,660 @@
+{template 'common/header'}
+<ul class="nav nav-tabs">
+	<li {if $operation == 'display'}class="active"{/if}><a href="{php echo $this->createWebUrl('cservice', array('op' => 'display'))}">客服管理</a></li>
+	<li {if $operation == 'post'}class="active"{/if}><a href="{php echo $this->createWebUrl('cservice', array('op' => 'post'))}">{if !$id}添加客服{else}编辑客服{/if}</a></li>
+	<li><a href="{php echo $this->createWebUrl('cservicegroup', array('op' => 'display'))}">客服组管理</a></li>
+	<li><a href="{php echo $this->createWebUrl('cservicegroup', array('op' => 'post'))}">添加客服组</a></li>
+	{if $operation == 'pingjia'}<li class="active"><a href="###">客服评价</a></li>{/if}
+	{if $operation == 'kuaijie'}<li class="active"><a href="###">快捷消息</a></li>{/if}
+</ul>
+{if $operation == 'post'}
+<div class="main">
+	<form action="" method="post" class="form-horizontal form" enctype="multipart/form-data" id="form1">
+		<ul class="nav nav-tabs" role="tablist">
+			<li role="presentation" class="active"><a href="#basic" role="tab" data-toggle="tab">基本设置</a></li>
+			<li role="presentation"><a href="#gzh" role="tab" data-toggle="tab">常用开关</a></li>
+			<li role="presentation"><a href="#xiaoxi" role="tab" data-toggle="tab">欢迎语、快捷消息</a></li>
+			<li role="presentation"><a href="#zaixian" role="tab" data-toggle="tab">在线时间设置</a></li>
+		</ul>
+		
+		<div class="tab-content">
+			<div role="tabpanel" class="tab-pane active panel panel-default main" id="basic">
+				<div class="panel-heading">
+					{if !$id}添加客服{else}编辑客服{/if}
+				</div>
+				<div class="panel-body">
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label">排序</label>
+						<div class="col-sm-2 col-xs-12">
+							<input type="text" name="displayorder" class="form-control" value="{$cservice['displayorder']}" />
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label"><span style="color:red">*</span>客服名称</label>
+						<div class="col-sm-9 col-xs-12">
+							<input type="text" name="name" class="form-control" value="{$cservice['name']}" />
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label">类别名称</label>
+						<div class="col-sm-9 col-xs-12">
+							<input type="text" name="typename" class="form-control" value="{$cservice['typename']}" />
+							<span class="help-block" style="color:#900;">原（微信咨询、QQ咨询、手机咨询、座机咨询）文字</span>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label"><span style="color:red">*</span>客服头像</label>
+						<div class="col-sm-9 col-xs-12">
+							{php echo tpl_form_field_image('thumb', $cservice['thumb'])}
+							<span class="help-block" style="color:#900;">为了保证美观，请上传180*180尺寸的图片</span>
+						</div>
+					</div>
+					
+					{if !empty($cservice)}
+						<input type="hidden" name="ctype" value="{$cservice['ctype']}" />
+					{else}
+						<div class="form-group">
+							<label class="col-xs-12 col-sm-3 col-md-2 control-label"><span style="color:red">*</span>客服类型</label>
+							<div class="col-sm-9 col-xs-12">
+								<label class='radio-inline'>
+									<input type='radio' name='ctype' value='1' /> 微信客服
+								</label>
+								<label class='radio-inline'>
+									<input type='radio' name='ctype' value='2' /> QQ客服
+								</label>
+								<label class='radio-inline'>
+									<input type='radio' name='ctype' value='3' /> 移动客服
+								</label>
+								<label class='radio-inline'>
+									<input type='radio' name='ctype' value='4' /> 座机客服
+								</label>
+							</div>
+						</div>
+					{/if}
+					
+					{if empty($cservice)}
+					<div class="form-group kefusearch" style="display:none;">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label">客服搜索</label>
+						<div class="col-sm-2 col-xs-12">
+							<input type="text" id="zzkey" class="form-control" placeholder="输入粉丝昵称按右侧按钮搜索" value="" />
+						</div>
+						<div class="col-sm-7 col-xs-12">
+							<button class="btn btn-primary" id="searchtz" type="button">搜索</button>
+						</div>
+						
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label"></label>
+						<div class="col-sm-6 col-xs-12">
+							<div class="main panel panel-default">
+								<div class="panel-body table-responsive">
+									<table class="table table-hover">
+										<thead class="navbar-inner">
+											<tr>
+												<th style="width:30%;">昵称</th>
+												<th style="width:50%;">Openid</th>
+												<th style="text-align:right;">操作</th>
+											</tr>
+										</thead>
+										<tbody id="searchres">
+
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+					{/if}
+					
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label"><span style="color:red">*</span>客服内容</label>
+						<div class="col-sm-7 col-xs-12">
+							{if !empty($cservice)}
+							<input type="text" disabled name="content" class="form-control" value="{$cservice['content']}" />
+							{else}
+							<input type="text" name="content" class="form-control" value="{$cservice['content']}" />
+							{/if}
+							<span class="help-block" style="color:red;">微信客服内容设置后不能修改！微信客服内容填需要成为客服的粉丝Opedid，QQ客服填qq号码，移动客服填手机号，坐班客服填座机号</span>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label">对接常见问题</label>
+						<div class="col-sm-9 col-xs-12">
+							{loop $cjwtlist $crow}
+								<label class='checkbox-inline'>
+									<input type='checkbox' name='wtid[]' value='{$crow["id"]}' {if $crow['isin'] == 1}checked{/if} /> {$crow['title']}
+								</label>
+							{/loop}
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label">所属客服组</label>
+						<div class="col-sm-9 col-xs-12">
+							{loop $cservicegrouplist $crow}
+								<label class='checkbox-inline'>
+									<input type='checkbox' name='groupid[]' value='{$crow["id"]}' {if $crow['isin'] == 1}checked{/if} /> {$crow['name']}
+								</label>
+							{/loop}
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div role="tabpanel" class="tab-pane panel panel-default main" id="gzh">
+				<div class="panel-heading">
+					{if !$id}添加客服{else}编辑客服{/if}
+				</div>
+				<div class="panel-body">					
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label">是否被绑定客服</label>
+						<div class="col-sm-9 col-xs-12">
+							<label for="beibang1" class="radio-inline"><input name="beibang" value="1" id="beibang1" {if $cservice['beibang'] == 1}checked="true"{/if} type="radio"> 是</label>
+							&nbsp;&nbsp;&nbsp;
+							<label for="beibang2" class="radio-inline"><input name="beibang" value="0" id="beibang2" {if $cservice['beibang'] == 0}checked="true"{/if} type="radio"> 否</label>
+							<span class="help-block" style="color:#900;">*系统开启客服绑定功能后可用，如选否即使开启客服绑定模式该客服也不会被绑定。</span>
+						</div>	
+					</div>
+					
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label">是否可以与绑定用户聊天</label>
+						<div class="col-sm-9 col-xs-12">
+							<label for="bdchat1" class="radio-inline"><input name="bdchat" value="1" id="bdchat1" {if $cservice['bdchat'] == 1}checked="true"{/if} type="radio"> 是</label>
+							&nbsp;&nbsp;&nbsp;
+							<label for="bdchat2" class="radio-inline"><input name="bdchat" value="0" id="bdchat2" {if $cservice['bdchat'] == 0}checked="true"{/if} type="radio"> 否</label>
+							<span class="help-block" style="color:#900;">*当用户绑定客服后，该用户咨询该客服时，仍然可以聊天。</span>
+						</div>	
+					</div>
+					
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label">展示客服微信二维码</label>
+						<div class="col-sm-9 col-xs-12">
+							<label class='radio-inline'>
+								<input type='radio' name='iskefuqrcode' value='0' {if $cservice['iskefuqrcode']==0}checked{/if} onclick="$('#kefuqrcode').hide();" /> 不展示
+							</label>
+							<label class='radio-inline'>
+								<input type='radio' name='iskefuqrcode' value='1' {if $cservice['iskefuqrcode']==1}checked{/if} onclick="$('#kefuqrcode').show();" /> 展示(用户触发)
+							</label>
+							<label class='radio-inline'>
+								<input type='radio' name='iskefuqrcode' value='2' {if $cservice['iskefuqrcode']==2}checked{/if} onclick="$('#kefuqrcode').show();" /> 展示(进入页面就展示)
+							</label>
+						</div>
+					</div>
+					
+					<div class="form-group" id="kefuqrcode" {if $cservice['iskefuqrcode'] == 0}style="display:none;"{/if}>
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label">客服微信二维码</label>
+						<div class="col-sm-9 col-xs-12">
+							{php echo tpl_form_field_image('kefuqrcode', $cservice['kefuqrcode'])}
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label">接收公众号窗口消息</label>
+						<div class="col-sm-9 col-xs-12">
+							<label class='radio-inline'>
+								<input type='radio' name='cangzh' value='0' {if $cservice['cangzh']==0}checked{/if} /> 不开启
+							</label>
+							<label class='radio-inline'>
+								<input type='radio' name='cangzh' value='1' {if $cservice['cangzh']==1}checked{/if} /> 开启
+							</label>
+						</div>
+					</div>
+					
+					<!--
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label">权重值</label>
+						<div class="col-sm-7 col-xs-12">							
+							<input type="text" name="gzhqzval" disabled class="form-control" value="{$cservice['gzhqzval']}" />
+							<span class="help-block" style="color:#900;">*权重值表示该客服接收公众号窗口事件时候是否优先接收到，权重值越高表示接收的事件次数越多。系统机制是按所有接收公众号窗口消息的客服权重平均值算法随机分配。</span>
+						</div>
+					</div>
+					-->
+				</div>
+			</div>
+			
+			<div role="tabpanel" class="tab-pane panel panel-default main" id="xiaoxi">
+				<div class="panel-heading">
+					{if !$id}添加客服{else}编辑客服{/if}
+				</div>
+				<div class="panel-body">
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label">客服欢迎语</label>
+						<div class="col-sm-4 col-xs-12">
+							<textarea class="form-control" style="height:100px;" name="autoreply">{$cservice['autoreply']}</textarea>
+						</div>
+						
+						<label class="col-xs-12 col-sm-2 col-md-2 control-label">图片</label>
+						<div class="col-sm-3 col-xs-12">
+							{php echo tpl_form_field_image('autoreplyimg', $cservice['autoreplyimg'])}
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label">粉丝快捷消息</label>
+						<div class="col-sm-7 col-xs-12">
+							<textarea class="form-control" style="height:100px;" name="fansauto">{$cservice['fansauto']}</textarea>
+							<span class="help-block" style="color:#900;">多个可用|隔开</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div role="tabpanel" class="tab-pane panel panel-default main" id="zaixian">
+				<div class="panel-heading">
+					{if !$id}添加客服{else}编辑客服{/if}
+				</div>
+				<div class="panel-body">
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label">零节点</label>
+						<div class="col-sm-9 col-xs-12">
+							<label class='radio-inline'>
+								<input type='radio' name='lingjie' value='1' {if $cservice['lingjie']==1}checked{/if} /> 是
+							</label>
+							<label class='radio-inline'>
+								<input type='radio' name='lingjie' value='0' {if $cservice['lingjie']==0}checked{/if} /> 否
+							</label>
+							<span class="help-block" style="color:red;">零节点是指跨过0点的时间，例如13到3点</span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label">客服在线时间</label>
+						<div class="col-sm-2 col-xs-12">
+							<div class="input-group">
+								<span class="input-group-addon">从</span>
+								<input class="form-control" name="starthour" value="{$cservice['starthour']}" type="text">
+								<span class="input-group-addon">点</span>
+							</div>
+						</div>
+						<div class="col-sm-2 col-xs-12">
+							<div class="input-group">
+								<span class="input-group-addon">到</span>
+								<input class="form-control" name="endhour" value="{$cservice['endhour']}" type="text">
+								<span class="input-group-addon">点</span>
+							</div>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label">在线星期制</label>
+						<div class="col-sm-9 col-xs-12">
+							<label class='radio-inline'>
+								<input type='radio' name='isxingqi' value='1' {if $cservice['isxingqi']==1}checked{/if} /> 开启
+							</label>
+							<label class='radio-inline'>
+								<input type='radio' name='isxingqi' value='0' {if $cservice['isxingqi']==0}checked{/if} /> 关闭
+							</label>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label">选择星期几在线</label>
+						<div class="col-sm-9 col-xs-12">
+							<label class='checkbox-inline'>
+								<input type='checkbox' name='day1' {if $cservice['day1']==1}checked{/if} value='1' /> 星期一在线
+							</label>
+							<label class='checkbox-inline'>
+								<input type='checkbox' name='day2' {if $cservice['day2']==1}checked{/if} value='1' /> 星期二在线
+							</label>
+							<label class='checkbox-inline'>
+								<input type='checkbox' name='day3' {if $cservice['day3']==1}checked{/if} value='1' /> 星期三在线
+							</label>
+							<label class='checkbox-inline'>
+								<input type='checkbox' name='day4' {if $cservice['day4']==1}checked{/if} value='1' /> 星期四在线
+							</label>
+							<label class='checkbox-inline'>
+								<input type='checkbox' name='day5' {if $cservice['day5']==1}checked{/if} value='1' /> 星期五在线
+							</label>
+							<label class='checkbox-inline'>
+								<input type='checkbox' name='day6' {if $cservice['day6']==1}checked{/if} value='1' /> 星期六在线
+							</label>
+							<label class='checkbox-inline'>
+								<input type='checkbox' name='day7' {if $cservice['day7']==1}checked{/if} value='1' /> 星期日在线
+							</label>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label">不在线提示语</label>
+						<div class="col-sm-7 col-xs-12">
+							<textarea class="form-control" name="notonline">{$cservice['notonline']}</textarea>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label class="col-xs-12 col-sm-3 col-md-2 control-label">启用手动在线下线</label>
+						<div class="col-sm-9 col-xs-12">
+							<label for="iszx1" class="radio-inline"><input name="iszx" value="1" id="iszx1" {if $cservice['iszx'] == 1}checked="true"{/if} type="radio"> 启用</label>
+							&nbsp;&nbsp;&nbsp;
+							<label for="iszx2" class="radio-inline"><input name="iszx" value="0" id="iszx2" {if $cservice['iszx'] == 0}checked="true"{/if} type="radio"> 关闭</label>
+							<span class="help-block" style="color:red;">启用手动在线下线后，设置的客服的在线时间将会失效，请谨慎操作！</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group col-sm-12">
+				<input type="hidden" name="token" value="{$_W['token']}" />
+				<input type="hidden" name="id" value="{$id}" />
+				<input type="submit" name="submit" value="提交" class="btn btn-primary col-lg-1" />
+			</div>
+		</div>
+	</form>
+</div>
+<script>
+$(function(){
+	$("input[name='ctype']").click(function(){
+		if($(this).val() == 1){
+			//$("input[name='content']").attr('readonly','readonly');
+			$(".kefusearch").show();
+		}else{
+			//$("input[name='content']").removeAttr('readonly');
+			$(".kefusearch").hide();
+		}
+	});
+	
+	$(document).on("click",".xqopenid",function(){
+		$("input[name='content']").val($(this).attr('data-openid'));
+	});
+	
+	$("#searchtz").click(function(){
+		if($("#zzkey").val() == ""){
+			alert("请输入粉丝昵称搜索！");
+		}else{
+			$.ajax({   
+				url:"{php echo $this->createWebUrl('cservice',array('op'=>'search'))}",   
+				type:'post', 
+				data:{
+					zzkey:$("#zzkey").val(),
+				},
+				dataType:'json',
+				success:function(data){   
+					if(data.error == 1){
+						alert(data.merres);
+					}else{
+						$("#searchres").html(data.html);
+						//$("#zzkey").val(data.merres.nickname);
+					}
+				}
+			});
+		}
+	});
+});
+</script>
+{elseif $operation == 'display'}
+<div class="main">
+	<div class="panel panel-info">
+		<div class="panel-heading">筛选</div>
+		<div class="panel-body">
+			<form action="./index.php" method="get" class="form-horizontal" role="form" id="form1">
+				<input name="c" value="site" type="hidden">
+				<input name="a" value="entry" type="hidden">
+				<input name="m" value="cy163_customerservice" type="hidden">
+				<input name="do" value="cservice" type="hidden">
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-2 control-label">选择客服组</label>
+					<div class="col-xs-12 col-sm-4">
+						<select name="groupid" class="form-control">
+							<option value="0">--请选择客服组--</option>
+							{loop $grouplist $row}
+							<option value="{$row['id']}" {if $_GPC['groupid'] == $row['id']}selected="selected"{/if}>{$row['name']}</option>
+							{/loop}
+						</select>
+					</div>
+					<div class="col-xs-12 col-sm-4">
+						<button class="btn btn-default"><i class="fa fa-search"></i> 搜索</button>
+						<button type="button" class="btn btn-default">总记录数：{php echo count($cservicelist);}</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	<form action="" method="post">
+	<div class="panel panel-default">
+		<div class="panel-body table-responsive">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th style="width:8%;">排序</th>
+						<th style="width:30%;">客服信息</th>
+						<th style="text-align:right;">操作</th>
+					</tr>
+				</thead>
+				<tbody>
+				{loop $cservicelist $row}
+				<tr>
+					<td><input class="form-control" name="displayorder[{$row['id']}]" value="{$row['displayorder']}" type="text" /></td>
+					<td>
+						<div><img src="{php echo tomedia($row['thumb']);}" width="50" height="50" /></div>
+						<div style="margin-top:5px;">{$row['name']}</div>
+					</td>
+					<td style="text-align:right;">
+						<div>
+							<a href="{php echo $this->createWebUrl('cservice', array('op' => 'post', 'id' => $row['id']))}" class="btn btn-default btn-sm" title="编辑"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;
+							<a href="{php echo $this->createWebUrl('cservice', array('op' => 'delete', 'id' => $row['id']))}" onclick="return confirm('删除客服同时将删除微信客服的全部聊天记录，确认吗？');return false;" class="btn btn-default btn-sm" title="删除"><i class="fa fa-times"></i></a>
+							{if $row['ctype'] == 1}<a href="{php echo $this->createWebUrl('cservice',array('op'=>'kuaijie','id'=>$row['id']))}" class="btn btn-success btn-sm">快捷消息</a>{/if}
+						</div>
+						<div style="margin-top:5px;">
+							{if $row['ctype'] == 1}<a href="{php echo $this->createWebUrl('cservice',array('op'=>'pingjia','content'=>$row['content']))}" class="btn btn-info btn-sm">评价信息</a>{/if}
+							<button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#qrcode{$row['id']}">连接、二维码</button>
+						</div>
+					</td>
+				</tr>
+				{/loop}
+				<tr>
+					<td></td>
+					<td colspan="3">
+						<input name="submit" class="btn btn-primary" value="提交" type="submit">
+						<input name="token" value="{$_W['token']}" type="hidden">
+					</td>
+				</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	</form>
+</div>
+
+{loop $cservicelist $row}
+<div class="modal fade" id="qrcode{$row['id']}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+				<h4 class="modal-title">链接、二维码</h4>
+			</div>
+			<div class="modal-body table-responsive" style="text-align:center;">
+				<div>{$row['serviceurl']}</div>
+				{if $row['ctype'] == 1}
+					<div><img src="{$row['qrcode']}" style="margin:0 auto;" /></div>
+				{/if}
+			</div>
+		</div>
+	</div>
+</div>
+{/loop}
+{elseif $operation == 'pingjia'}
+<div class="main">
+	<div class="panel panel-info">
+		<div class="panel-heading">筛选</div>
+		<div class="panel-body">
+			<form action="./index.php" method="get" class="form-horizontal" role="form" id="form1">
+				<input name="c" value="site" type="hidden">
+				<input name="a" value="entry" type="hidden">
+				<input name="m" value="cy163_customerservice" type="hidden">
+				<input name="do" value="cservice" type="hidden">
+				<input name="op" value="pingjia" type="hidden">
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-2 control-label">选择客服</label>
+					<div class="col-xs-12 col-sm-4">
+						<select name="content" class="form-control">
+							<option value="0">--请选择客服--</option>
+							{loop $cservicelist $row}
+							<option value="{$row['content']}" {if $_GPC['content'] == $row['content']}selected="selected"{/if}>{$row['name']}</option>
+							{/loop}
+						</select>
+					</div>
+					<div class="col-xs-12 col-sm-4">
+						<button class="btn btn-default"><i class="fa fa-search"></i> 搜索</button>
+						<button type="button" class="btn btn-default">总记录数：{$total}</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<div class="panel panel-default">
+		<div class="panel-body table-responsive">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th style="width:20%;">客户</th>
+						<th style="width:10%;">类型</th>
+						<th style="width:45%;">评价内容</th>
+						<th style="text-align:right;">评价时间</th>
+					</tr>
+				</thead>
+				<tbody>
+				{loop $pingjialist $rowrow}
+				<tr>
+					<td>
+						<div><img src="{$rowrow['member']['fansavatar']}" width="50" height="50" /></div>
+						<div style="margin-top:5px;">{$rowrow['member']['fansnickname']}</div>
+					</td>
+					<td>
+						{if $rowrow['pingtype'] == 1}<span class="label label-success">好评</span>{/if}
+						{if $rowrow['pingtype'] == 2}<span class="label label-info">中评</span>{/if}
+						{if $rowrow['pingtype'] == 3}<span class="label label-danger">差评</span>{/if}
+					</td>
+					<td>{$rowrow['content']}</td>
+					<td style="text-align:right;">{php echo date("Y-m-d H:i:s",$rowrow['time'])}</td>
+				</tr>
+				{/loop}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	{$pager}
+</div>
+{elseif $operation == 'kuaijie'}
+	<div class="panel panel-info main">
+		<div class="panel-heading">添加快捷消息</div>
+		<div class="panel-body">
+			<form action="./index.php" method="get" class="form-horizontal" role="form" id="form1">
+				<input name="c" value="site" type="hidden">
+				<input name="a" value="entry" type="hidden">
+				<input name="m" value="cy163_customerservice" type="hidden">
+				<input name="do" value="cservice" type="hidden">
+				<input name="op" value="dokuaijie" type="hidden">
+				<input name="kfid" value="{$cservice['id']}" type="hidden">
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">消息类型</label>
+					<div class="col-sm-9 col-xs-12">
+						<label class='radio-inline'>
+							<input type='radio' name='kjtype' value='0' /> 文字
+						</label>
+						<label class='radio-inline'>
+							<input type='radio' name='kjtype' value='1' /> 图片
+						</label>
+						<label class='radio-inline'>
+							<input type='radio' name='kjtype' value='2' /> 图文
+						</label>
+					</div>
+				</div>
+				
+				<div class="form-group kjcon2" style="display:none;">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">图片内容</label>
+					<div class="col-sm-9 col-xs-12">
+						{php echo tpl_form_field_image('thumb', '')}
+					</div>
+				</div>
+				
+				<div class="form-group kjcon1" style="display:none;">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">文字内容</label>
+					<div class="col-sm-7 col-xs-12">
+						<textarea class="form-control" style="height:100px;" name="con"></textarea>
+					</div>
+				</div>
+				
+				<div class="form-group kjcon3" style="display:none;">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">图文内容</label>
+					<div class="col-sm-7 col-xs-12">
+						{php echo tpl_ueditor('allcon', '');}
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label"></label>
+					<div class="col-sm-7 col-xs-12">
+						<input type="hidden" name="token" value="{$_W['token']}" />
+						<input type="submit" name="submit" value="提交" class="btn btn-primary" />
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">{$cservice['name']}的快捷消息</div>
+		<div class="panel-body table-responsive">
+			<form action="" method="post">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th style="width:8%;">排序</th>
+						<th style="width:15%;">消息类型</th>
+						<th>消息内容</th>
+						<th style="width:10%;text-align:right;">操作</th>
+					</tr>
+				</thead>
+				<tbody>
+				{loop $kuaijies $row}
+				<tr>
+					<td><input class="form-control" name="displayorder[{$row['id']}]" value="{$row['displayorder']}" type="text"></td>
+					<td>
+						{if $row['kjtype'] == 0}<span class="label label-info">文字</span>{/if}
+						{if $row['kjtype'] == 1}<span class="label label-info">图片</span>{/if}
+						{if $row['kjtype'] == 2}<span class="label label-info">图文</span>{/if}
+					</td>
+					<td>
+						{if $row['kjtype'] == 0}{$row['con']}{/if}
+						{if $row['kjtype'] == 1}<img src="{php echo tomedia($row['thumb'])}" style="max-width:100px;" />{/if}
+						{if $row['kjtype'] == 2}
+							<div class="allcon">{php echo htmlspecialchars_decode($row['allcon']);}</div>
+						{/if}
+					</td>
+					<td style="text-align:right;">
+						<a href="{php echo $this->createWebUrl('cservice', array('op' => 'deletekj', 'id' => $row['id']))}" onclick="return confirm('确认吗？');return false;" class="btn btn-default btn-sm" title="删除"><i class="fa fa-times"></i></a>
+					</td>
+				</tr>
+				{/loop}
+				<tr>
+					<td></td>
+					<td colspan="3">
+						<input name="submit" class="btn btn-primary" value="提交排序" type="submit">
+						<input name="token" value="{$_W['token']}" type="hidden">
+					</td>
+				</tr>
+				</tbody>
+			</table>
+			</form>
+		</div>
+	</div>
+<script>
+$(function(){
+	$("input[name='kjtype']").click(function(){
+		$(".kjcon1").hide();
+		$(".kjcon3").hide();
+		$(".kjcon2").hide();
+		if($(this).val() == 0){
+			$(".kjcon1").show();
+		}else if($(this).val() == 1){
+			$(".kjcon2").show();
+		}else{
+			$(".kjcon3").show();
+		}
+	});
+})
+</script>
+{/if}
+{template 'common/footer'}

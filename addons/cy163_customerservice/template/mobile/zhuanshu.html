@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html style="background:#f5f5f5;">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1,user-scalable=no">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>专属客服</title>	
+	<link rel="stylesheet" href="{MD_ROOT}static/iconfont/iconfont.css?v=20171228"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/css/weui.min.css"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/css/jquery-weui.min.css"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/newui/css/common.css?v=20171228"/>
+    <script>
+        var deviceWidth = document.documentElement.clientWidth;
+        document.documentElement.style.fontSize = deviceWidth / 7.5 + 'px';
+    </script>
+	{php echo register_jssdk(false);}
+	<style>	
+	.con{padding:2rem 0.2rem 0 0.2rem;}
+	.con img{width:1.6rem;height:1.6rem;border-radius:100%;}
+	.con .name{height:0.6rem;line-height:0.6rem;font-size:0.32rem;text-align:center;margin-top:0.15rem;}
+	.con a{display:block;color:#fff;background:{php echo $this->module["config"]['temcolor']};height:0.7rem;line-height:0.7rem;text-align:center;width:50%;margin:0.2rem auto;font-size:0.32rem;border-radius:0.1rem;}
+	</style>
+</head>
+
+<body style="background:#f5f5f5;">
+<div class="con">
+	<img src="{php echo tomedia($cservicebd['thumb'])}" />
+	<div class="name">您的专属客服：{$cservicebd['name']}</div>
+	<a href="{php echo $this->createMobileUrl('chat',array('toopenid'=>$cservicebd['content']))}">立即咨询</a>
+</div>
+<script src="{MD_ROOT}/static/newui/js/jquery-3.1.1.min.js"></script>
+<script src="{MD_ROOT}/static/newui/js/jquery-weui.min.js"></script>
+<script src="{MD_ROOT}/static/newui/js/swiper.min.js"></script>
+<script type="text/javascript">
+$(function(){
+	$(".banner").swiper({
+		loop: true,
+		paginationType:'bullets',
+		autoplay:3000,
+	});
+})
+wx.ready(function () {
+	sharedata = {
+		title: '{php echo $this->module["config"]["sharetitle"]}',
+		desc: '{php echo $this->module["config"]["sharedes"]}',
+		link: '{php echo $this->module["config"]["shareurl"]}',
+		imgUrl: '{php echo tomedia($this->module["config"]["sharethumb"]);}',
+		trigger: function (res) {
+			//alert('用户点击发送给朋友');
+		},
+		success: function (res) {
+			//alert('已分享');
+		},
+		cancel: function (res) {
+			//alert('已取消');
+		},
+		fail: function (res) {
+			alert("分享失败");
+		}
+	};
+	wx.onMenuShareAppMessage(sharedata);
+	wx.onMenuShareTimeline(sharedata);
+	wx.onMenuShareQQ(sharedata);
+	wx.onMenuShareWeibo(sharedata);
+});
+</script>
+</body>
+</html>

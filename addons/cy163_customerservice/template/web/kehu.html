@@ -1,0 +1,343 @@
+{template 'common/header'}
+<ul class="nav nav-tabs">
+	<li {if $operation == 'display'}class="active"{/if}><a href="{php echo $this->createWebUrl('kehu', array('op' => 'display'))}">客户管理</a></li>
+</ul>
+{if $operation == 'display'}
+<div class="main">
+	<div class="panel panel-info">
+		<div class="panel-heading">筛选</div>
+		<div class="panel-body">
+			<form action="./index.php" method="get" class="form-horizontal" role="form" id="form1">
+				<input type="hidden" name="c" value="site" />
+				<input type="hidden" name="a" value="entry" />
+				<input type="hidden" name="m" value="cy163_customerservice" />
+				<input type="hidden" name="do" value="kehu" />
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-2 control-label">搜索客户</label>
+					<div class="col-xs-12 col-sm-6">
+						<input type="text" name="keyword" class='form-control' placeholder='可根据客户昵称、openid、标签、姓名、电话进行模糊搜索' value="{$keyword}" />
+					</div>
+					<div class="col-sm-4 col-xs-12">
+						<button class="btn btn-default"><i class="fa fa-search"></i> 搜索</button>
+						<button type="button" class="btn btn-default">总记录数：{$total}</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	
+	<div class="panel panel-default">
+		<div class="panel-heading">客户列表</div>
+		<div class="panel-body table-responsive">
+			<table class="table table-hover table-striped table-condensed">
+				<thead>
+					<tr>
+						<th style="width:15%;">客户</th>
+						<th style="width:15%;">客服</th>
+						<th style="width:30%;">信息/黑名单/绑定客服</th>
+						<th style="text-align:right;">操作</th>
+					</tr>
+				</thead>
+				<tbody>
+				{loop $list $row}
+				<tr>
+					<td>
+						<div><img src="{$row['fansavatar']}" width="30" height="30" style="border-radius:100%;" /></div>
+						<div style="margin-top:5px;"><span class="label label-default">{$row['fansnickname']}</span></div>
+					</td>
+					<td>
+						<div><img src="{$row['kefuavatar']}" width="30" height="30" style="border-radius:100%;" /></div>
+						<div style="margin-top:5px;"><span class="label label-default">{$row['kefunickname']}</span></div>
+					</td>
+					<td>
+						<div>姓名:{$row['realname']}，电话:{$row['telphone']}，标签:{$row['name']}</div>
+						{if $row['ishei'] == 1}
+							<div style="margin-top:5px;"><span class="label label-danger">黑名单</span></div>
+						{/if}
+						{if $row['bdopenid'] != ''}
+							<div style="margin-top:5px;"><span class="label label-default">已绑定客服</span></div>
+						{/if}
+					</td>
+					<td style="text-align:right;">
+						<div>
+							{if $row['ishei'] == 0}
+							<a href="{php echo $this->createWebUrl('kehu',array('op'=>'lahei','id'=>$row['id']))}" onclick="return confirm('真的要加入黑名单吗？');return false;" class="btn btn-danger btn-sm">加入黑名单</a>&nbsp;&nbsp;
+							{else}
+							<a href="{php echo $this->createWebUrl('kehu',array('op'=>'yichu','id'=>$row['id']))}" onclick="return confirm('真的要移除黑名单吗？');return false;" class="btn btn-success btn-sm">移除黑名单</a>&nbsp;&nbsp;
+							{/if}
+							<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#biaoqian{$row['id']}">修改标签</button>
+						</div>
+						<div style="margin-top:5px;">
+							<button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#genzong{$row['id']}">客户跟踪</button>
+							{if $row['bdopenid'] != ''}
+							<a href="{php echo $this->createWebUrl('kehu',array('op'=>'delbd','id'=>$row['id']))}" onclick="return confirm('真的要解除绑定吗？');return false;" class="btn btn-danger btn-sm">解除绑定</a>&nbsp;&nbsp;
+							{/if}
+							<button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#formModal{$row['id']}">聊天记录</button>
+						</div>
+					</td>
+				</tr>
+				{/loop}
+				</tbody>
+			</table>
+			
+			
+			{loop $list $row}
+				<div class="modal fade" id="biaoqian{$row['id']}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+								<h4 class="modal-title">修改标签</h4>
+							</div>
+							
+							<div class="modal-body table-responsive" style="max-height:400px;overflow-y:auto;">
+								<div class="form-horizontal">
+								<div class="form-group">
+									<label class="col-xs-12 col-sm-3 col-md-3 col-lg-2 control-label">标签</label>
+									<div class="col-xs-12 col-sm-9 col-lg-9">
+										<input name="biaoqian" class="form-control biaoqian{$row['id']}" value="{$row['name']}" type="text">
+									</div>
+								</div>
+								
+								<div class="form-group">
+									<label class="col-xs-12 col-sm-3 col-md-3 col-lg-2 control-label">姓名</label>
+									<div class="col-xs-12 col-sm-9 col-lg-9">
+										<input name="realname" class="form-control realname{$row['id']}" value="{$row['realname']}" type="text">
+									</div>
+								</div>
+								
+								<div class="form-group">
+									<label class="col-xs-12 col-sm-3 col-md-3 col-lg-2 control-label">手机</label>
+									<div class="col-xs-12 col-sm-9 col-lg-9">
+										<input name="telphone" class="form-control telphone{$row['id']}" value="{$row['telphone']}" type="text">
+									</div>
+								</div>
+								
+								<div class="form-group">
+									<label class="col-xs-12 col-sm-2 col-md-2 col-lg-2 control-label"></label>
+									<div class="col-xs-12 col-sm-8 col-lg-9">
+										<button class="btn btn-success biaoqianbtn" data-id="{$row['id']}" type="button ">确定</button>
+									</div>
+								</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal fade" id="genzong{$row['id']}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-lg">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+								<h4 class="modal-title">{$row['fansnickname']} - 跟踪记录</h4>
+							</div>
+							<div class="modal-body table-responsive" style="max-height:400px;overflow-y:auto;">
+								<form action="{php echo $this->createWebUrl('kehu')}" method="post" class="form-horizontal" role="form">
+									<input type="hidden" name="fansopenid" value="{$row['fansopenid']}" />
+									<input type="hidden" name="fansnickname" value="{$row['fansnickname']}" />
+									<button type="submit" name="op" onclick="return confirm('确认要导出吗？');return false;" value="export" class="btn btn-success"><i class="fa fa-download"></i>导出记录</button>
+								</form>
+								<table class="table table-hover table-striped table-condensed">
+									<thead>
+										<tr>
+											<th style="width:15%;">客服</th>
+											<th>记录内容</th>
+											<th style="width:15%;">时间</th>
+											<th style="width:10%;text-align:right;">操作</th>
+										</tr>
+									</thead>
+									<tbody>
+										{loop $row['zz'] $zz}
+											<tr class="trre{$zz['id']}">
+												<td>
+													<div><img src="{$zz['kefuavatar']}" style="width:50px;height:50px;" /></div>
+													<div style="margin-top:5px;"><span class="label label-success">{$zz['kefuname']}</span></div>
+												</td>
+												<td>
+													<textarea data-id="{$zz['id']}" class="form-control changecon">{$zz['content']}</textarea>
+												</td>
+												<td>
+													<span class="label label-info">{php echo date("Y-m-d H:i:s",$zz['time'])}</span>
+												</td>
+												<td style="text-align:right;">
+													<a data-id="{$zz['id']}" class="btn btn-default btn-sm deldudu" title="删除"><i class="fa fa-times"></i></a>
+												</td>
+											</tr>
+										{/loop}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal fade" id="formModal{$row['id']}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-lg">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+								<h4 class="modal-title">客户聊天记录</h4>
+							</div>
+							<div class="modal-body table-responsive" style="max-height:400px;overflow-y:auto;">					
+								<table class="table table-hover table-striped table-condensed">
+									<thead>
+										<tr>
+											<th style="width:15%;">昵称</th>
+											<th>聊天内容</th>
+											<th style="width:15%;">时间</th>
+											<th style="width:10%;text-align:right;">操作</th>
+										</tr>
+									</thead>
+									<tbody>
+										{loop $row['chat'] $rowchat}
+											<tr class="trre{$rowchat['id']}">
+												<td>
+													{if $rowchat['openid'] == $row['fansopenid']}
+														<span class="label label-success">{$row['fansnickname']}</span>
+													{else}
+														<span class="label label-info">{$row['kefunickname']}</span>
+													{/if}
+												</td>
+												<td style="overflow:auto;text-overflow:initial;white-space:inherit;">
+													{if $rowchat['openid'] == $rowrow['fansopenid']}
+														{if $rowchat['type'] == 3 || $rowchat['type'] == 4}
+															<img src="{$rowchat['content']}" onclick="showimage('{$rowchat['content']}');" style="max-width:100px;cursor:pointer;" />
+														{elseif $rowchat['type'] == 5 || $rowchat['type'] == 6}
+														<span class="label label-success">[语音消息]</span>
+														{else}
+															{$rowchat['content']}
+														{/if}
+													{else}
+														{if $rowchat['type'] == 3 || $rowchat['type'] == 4}
+														<img src="{$rowchat['content']}" onclick="showimage('{$rowchat['content']}');" style="max-width:100px;cursor:pointer;" />
+														{elseif $rowchat['type'] == 5 || $rowchat['type'] == 6}
+														<span class="label label-success">[语音消息]</span>
+														{else}
+															{$rowchat['content']}
+														{/if}
+													{/if}
+												</td>
+												<td>
+													<span class="label label-info">{php echo date("Y-m-d H:i:s",$rowchat['time'])}</span>
+												</td>
+												<td style="text-align:right;">
+													<a data-id="{$rowchat['id']}" class="btn btn-default btn-sm deldu" title="删除"><i class="fa fa-times"></i></a>
+												</td>
+											</tr>
+										{/loop}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			{/loop}
+		</div>
+	</div>
+	{$pager}
+</div>
+{/if}
+<div id="ShowImage_Form" tabindex="-2" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">     <div class="modal-dialog modal-lg">
+	<div class="modal-content">    
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+			<h4 class="modal-title">图片信息</h4>
+		</div>
+		<div class="modal-body">
+			<div id="img_show"></div>
+		</div>
+	</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	$('.changecon').change(function(){
+		if(confirm("确定要修改跟踪内容吗？")){
+			var id = $(this).attr('data-id');
+			$.ajax({
+				url:"{php echo $this->createWebUrl('kehu')}",
+				data:{
+					id:id,
+					op:'changecon',
+					content:$(this).val(),
+				},
+				dataType:'json',
+				type:'post',        
+				success:function(data){
+					alert(data.msg);
+				},
+			});
+		}
+	});
+	$('.deldu').click(function(){
+		if(confirm("确定要删除这条聊天记录吗？")){
+			var chatid = $(this).attr('data-id');
+			$.ajax({
+				url:"{php echo $this->createWebUrl('kehu')}",
+				data:{
+					id:chatid,
+					op:'deletedu',
+				},
+				dataType:'json',
+				type:'post',        
+				success:function(data){
+					if(data.error == 1){
+						alert(data.msg);
+					}else{
+						$('.trre'+chatid).remove();
+					}
+				},
+			});
+		}
+	});
+	
+	$('.deldudu').click(function(){
+		if(confirm("确定要删除这条记录吗？")){
+			var chatid = $(this).attr('data-id');
+			$.ajax({
+				url:"{php echo $this->createWebUrl('kehu')}",
+				data:{
+					id:chatid,
+					op:'deletedudu',
+				},
+				dataType:'json',
+				type:'post',        
+				success:function(data){
+					if(data.error == 1){
+						alert(data.msg);
+					}else{
+						$('.trre'+chatid).remove();
+					}
+				},
+			});
+		}
+	});
+	
+	$('.biaoqianbtn').click(function(){
+		var id = $(this).attr('data-id');
+		$.ajax({
+			url:"{php echo $this->createWebUrl('kehu')}",
+			data:{
+				id:id,
+				op:'changebiaoqian',
+				name:$('.biaoqian'+id).val(),
+				realname:$('.realname'+id).val(),
+				telphone:$('.telphone'+id).val(),
+			},
+			dataType:'json',
+			type:'post',        
+			success:function(data){
+				alert(data.msg);
+				$('.showbiaoqian'+id).text("标签:"+$('.biaoqian'+id).val());
+				$('.showrealname'+id).text("姓名:"+$('.realname'+id).val());
+				$('.showtelphone'+id).text("电话:"+$('.telphone'+id).val());
+			},
+		});
+	});
+})
+function showimage(source)
+ {
+	 $("#ShowImage_Form").find("#img_show").html("<image src='"+source+"' class='carousel-inner img-responsive img-rounded' />");
+	 $("#ShowImage_Form").modal();
+ }
+</script>
+{template 'common/footer'}

@@ -1,0 +1,65 @@
+{template 'common/header'}
+<style>
+.kflist{
+	margin-bottom:20px;
+	border:solid 1px #ccc;
+	border-radius:10px;
+	text-align:center;
+	padding:10px 10px 0 10px;
+}
+.kflist img{
+	width:50px;
+	height:50px;
+	border-radius:100%;
+}
+.kflist .name{
+	color:#333;
+	font-size:14px;
+	margin-top:5px;
+}
+.kflist .nums{
+	margin-top:10px;
+}
+</style>
+<ul class="nav nav-tabs">
+	<li class="active"><a href="{php echo $this->createWebUrl('tongji')}">客服统计</a></li>
+</ul>
+
+
+<div class="main">
+	<div class="row">
+		{loop $cservicelist $row}
+		<div class="col-md-4">
+			<div class="kflist">
+				<img src="{php echo tomedia($row['thumb']);}" />
+				<div class="name">{$row['name']}</div>
+				<div class="nums">
+					<div class="panel panel-info">
+					  <div class="panel-heading">接待人数</div>
+					  <div class="panel-body">
+						<span class="label label-success">今日{$row['todayjdnum']}</span>
+						<span class="label label-primary">本周{$row['weekjdnum']}</span>
+						<span class="label label-warning">本月{$row['monthjdnum']}</span>
+					  </div>
+					</div>
+				</div>
+				<div class="nums">
+					<div class="panel panel-success">
+					  <div class="panel-heading">回复次数</div>
+					  <div class="panel-body">
+						<span class="label label-success">今日{$row['todayhfnum']}</span>
+						<span class="label label-primary">本周{$row['weekhfnum']}</span>
+						<span class="label label-warning">本月{$row['monthhfnum']}</span>
+					  </div>
+					</div>
+				</div>
+			</div>
+		</div>
+		{/loop}
+	</div>
+</div>
+
+<script type="text/javascript">
+
+</script>
+{template 'common/footer'}

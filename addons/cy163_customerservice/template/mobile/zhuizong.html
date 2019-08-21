@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1,user-scalable=no">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>{$hasfanskefu["fansnickname"]}的追踪记录</title>	
+	<link rel="stylesheet" href="{MD_ROOT}static/iconfont/iconfont.css?v=20171128"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/css/weui.min.css"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/css/jquery-weui.min.css"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/newui/css/common.css?v=20180804"/>
+	{php echo register_jssdk(false);}
+    <script>
+        var deviceWidth = document.documentElement.clientWidth;
+        document.documentElement.style.fontSize = deviceWidth / 7.5 + 'px';
+    </script>
+	<style>
+	body{background:#f5f5f5;padding-bottom:1rem;}
+	.zzfooter{position:fixed;bottom:0;height:1rem;line-height:1rem;color:#fff;font-size:0.32rem;background:{php echo $this->module["config"]['temcolor']};text-align:center;width:100%;}
+	
+	
+	.zzitem{background:#fff;border-bottom:solid 1px #f1f1f1;padding:0.2rem;margin-bottom:0.1rem;}
+	.zzitem .top{height:0.8rem;}
+	.zzitem .top img{width:0.8rem;height:0.8rem;border-radius:100%;}
+	.zzitem .top .right{flex:1;margin-left:0.2rem;}
+	.zzitem .top .right .nickname{color:#333;font-size:0.3rem;height:0.4rem;line-height:0.4rem;margin-top:0.05rem;}
+	.zzitem .top .right .time{color:#999;font-size:0.28rem;line-height:0.3rem;height:0.3rem;margin-top:0.05rem;}
+	.zzitem .con{color:#333;font-size:0.32rem;line-height:0.4rem;margin-top:0.2rem;}
+	
+	.pinglundiv{position:fixed;z-index:999;width:90%;left:5%;background:#fff;top:25%;-moz-box-shadow:0px 0px 5px #999999; -webkit-box-shadow:0px 0px 5px #999999; box-shadow:0px 0px 5px #999999;}
+	.pinglundiv .title{height:0.8rem;line-height:0.8rem;font-size:0.3rem;text-align:center;}
+	.pinglundiv .textarea{padding:0 0.2rem;}
+	.pinglundiv .textarea textarea{display:block;width:96%;border:none;height:1.6rem;padding:0.2rem 2%;font-size:0.3rem;border-radius:0;color:#666;background:#f1f1f1;}
+	.pinglundiv .btns{border-top:solid 1px #f1f1f1;margin-top:0.2rem;background:#fff;height:0.8rem;}
+	.pinglundiv .btns button{flex:1;height:0.8rem;line-height:0.8rem;text-align:center;border:none;font-size:0.28rem;background:#fff;}
+	.pinglundiv .btns .cancel{border-right:solid 1px #DFDFDF;}
+	
+	.weui-dialog__btn{color:{php echo $this->module["config"]['temcolor']};}
+	</style>
+</head>
+
+<body>
+
+<div class="pinglundiv hide">
+	<form action="{php echo $this->createMobileUrl('zhuizong')}" method="post" id="zzform">
+		<input type="hidden" name="op" value="add" />
+		<input type="hidden" name="toopenid" id="toopenid" value="{$toopenid}" />
+		<div class="title">记录内容</div>
+		<div class="textarea">
+			<textarea name="content" placeholder="说几句记录下..."></textarea>
+		</div>
+		<div class="btns flex">
+			<input type="hidden" name="token" value="{$_W['token']}" />
+			<button class="cancel" type="button">取消</button>
+			<button class="docomment" style="color:{php echo $this->module['config']['temcolor']};" name="submit" value="1" type="submit">提交</button>
+		</div>
+	</form>
+</div>
+<div class="blackbg hide"></div>
+
+{loop $zzlist $row}
+	<div class="zzitem">
+		<div class="top flex">
+			<img src="{$row['kefuavatar']}" />
+			<div class="right">
+				<div class="nickname">{$row['kefuname']}</div>
+				<div class="time">{php echo date("Y-m-d H:i:s",$row['time'])}</div>
+			</div>
+		</div>
+		<div class="con">{$row['content']}</div>
+	</div>
+{/loop}
+</div>
+
+<div class="zzfooter">我要记录</div>
+<script src="{MD_ROOT}/static/newui/js/jquery-3.1.1.min.js"></script>
+<script src="{MD_ROOT}/static/newui/js/jquery-weui.min.js"></script>
+<script src="{MD_ROOT}/static/js/jquery.form.js"></script>
+<script type="text/javascript">
+var issubmit2 = false;  //状态标记
+$("#zzform").ajaxForm({
+	beforeSubmit:function(){
+		if(issubmit2){
+			$.alert("请不要重复提交");
+			return false;
+		}else{
+			issubmit2 = true;
+		}
+	},
+	type: "POST",
+	dataType:"json",
+	success: function(data) {
+		if(data.error == 1){
+			$.alert(data.message,function(){
+				issubmit2 = false;
+			});
+		}else{
+			$.alert(data.message,function(){
+				history.go(0);
+			});
+		}
+	},
+});
+$(function(){
+	$('.cancel').click(function(){
+		$('.pinglundiv,.blackbg').addClass('hide');
+	});
+	$('.blackbg').click(function(){
+		$('.pinglundiv,.blackbg').addClass('hide');
+	});
+	$('.zzfooter').click(function(){
+		$('.pinglundiv,.blackbg').removeClass('hide');
+	});
+})
+</script>
+<script type="text/javascript">
+wx.ready(function () {
+	wx.hideOptionMenu();
+	sharedata = {
+		title: '{$hasfanskefu["fansnickname"]}的追踪记录',
+		desc: '{$hasfanskefu["fansnickname"]}的追踪记录',
+		link: window.location.href,
+		imgUrl: '{$hasfanskefu["fansavatar"]}',
+		trigger: function (res) {
+			//alert('用户点击发送给朋友');
+		},
+		success: function (res) {
+			//alert('已分享');
+		},
+		cancel: function (res) {
+			//alert('已取消');
+		},
+		fail: function (res) {
+			alert("分享失败");
+		}
+	};
+	wx.onMenuShareAppMessage(sharedata);
+	wx.onMenuShareTimeline(sharedata);
+	wx.onMenuShareQQ(sharedata);
+	wx.onMenuShareWeibo(sharedata);
+});
+</script>
+</body>
+</html>

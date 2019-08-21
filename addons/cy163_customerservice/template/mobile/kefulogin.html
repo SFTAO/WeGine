@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1,user-scalable=no">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>客服登录</title>
+	<link rel="stylesheet" href="{MD_ROOT}static/jqueryweui/css/weui.min.css"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/jqueryweui/css/jquery-weui.min.css"/>
+	<script>
+        var deviceWidth = document.documentElement.clientWidth;
+        document.documentElement.style.fontSize = deviceWidth / 7.5 + 'px';
+    </script>
+	<style>
+	html { width: 100%; height:100%; overflow:hidden; }
+	body { 
+		width: 100%;
+		height:100%;
+		font-family: 'Open Sans', sans-serif;
+		background: #092756;
+		background: -moz-radial-gradient(0% 100%, ellipse cover, rgba(104,128,138,.4) 10%,rgba(138,114,76,0) 40%),-moz-linear-gradient(top,  rgba(57,173,219,.25) 0%, rgba(42,60,87,.4) 100%), -moz-linear-gradient(-45deg,  #670d10 0%, #092756 100%);
+		background: -webkit-radial-gradient(0% 100%, ellipse cover, rgba(104,128,138,.4) 10%,rgba(138,114,76,0) 40%), -webkit-linear-gradient(top,  rgba(57,173,219,.25) 0%,rgba(42,60,87,.4) 100%), -webkit-linear-gradient(-45deg,  #670d10 0%,#092756 100%);
+		background: -o-radial-gradient(0% 100%, ellipse cover, rgba(104,128,138,.4) 10%,rgba(138,114,76,0) 40%), -o-linear-gradient(top,  rgba(57,173,219,.25) 0%,rgba(42,60,87,.4) 100%), -o-linear-gradient(-45deg,  #670d10 0%,#092756 100%);
+		background: -ms-radial-gradient(0% 100%, ellipse cover, rgba(104,128,138,.4) 10%,rgba(138,114,76,0) 40%), -ms-linear-gradient(top,  rgba(57,173,219,.25) 0%,rgba(42,60,87,.4) 100%), -ms-linear-gradient(-45deg,  #670d10 0%,#092756 100%);
+		background: -webkit-radial-gradient(0% 100%, ellipse cover, rgba(104,128,138,.4) 10%,rgba(138,114,76,0) 40%), linear-gradient(to bottom,  rgba(57,173,219,.25) 0%,rgba(42,60,87,.4) 100%), linear-gradient(135deg,  #670d10 0%,#092756 100%);
+		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3E1D6D', endColorstr='#092756',GradientType=1 );
+	}
+	.login { 
+		position: absolute;
+		top: 10%;
+		left: 0.75rem;
+		width:6rem;
+		height:auto;
+	}
+	.login .title{
+		text-align:center;
+		color:#fff;
+		font-size:0.4rem;
+		margin-bottom:0.4rem;
+	}
+	input {
+		background: rgba(0,0,0,0.3);
+		border: none;
+		outline: none;
+		padding: 0.2rem;
+		font-size: 0.28rem;
+		color: #fff;
+		border: 1px solid rgba(0,0,0,0.3);
+		border-radius: 0.1rem;
+		-webkit-appearance: none;
+		height:0.4rem;line-height:0.4rem;
+	}
+	.weui-dialog__btn{color:{php echo $this->module["config"]['temcolor']};}
+	
+	.flex{
+		display: box;              /* OLD - Android 4.4- */
+		display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+		display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+		display: -ms-flexbox;      /* TWEENER - IE 10 */
+		display: -webkit-flex;     /* NEW - Chrome */
+		display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+		
+		-webkit-box-orient: horizontal;
+		-webkit-flex-direction: row;
+		-moz-flex-direction: row;
+		-ms-flex-direction: row;
+		-o-flex-direction: row;
+		flex-direction: row;
+		margin-bottom:0.3rem;
+	}
+	.flex button{
+		background:#f5f5f5; 
+		text-shadow:0 1px 1px rgba(255, 255, 255, 0.75);
+		border: 1px solid #e6e6e6; 
+		-webkit-border-radius: 0.1rem;
+		-moz-border-radius: 0.1rem;
+		border-radius: 0.1rem;
+		text-align:center;
+		color:#333333;
+		font-size:0.3rem;
+		height:0.75rem;
+		line-height:0.75rem;
+	}
+
+	.flex1{-webkit-box-flex:1; -moz-box-flex:1;-webkit-flex:1;-ms-flex:1;flex:1;}
+	
+	.weui-toast{width:3.5rem;left:4rem;min-height:auto;padding:0.2rem 0;}
+	.weui-icon_toast{margin-bottom:0.15rem;margin-top:0.15rem;font-size:0.6rem;margin:0;}
+	.weui-toast_content{font-size:0.35rem;}
+
+	.weui-dialog__hd {padding:0;font-size:0.5rem;}
+	.weui-dialog__title{font-size:0.4rem;}
+	.weui-dialog__bd{padding:0.2rem;font-size:0.35rem;min-height:0.4rem;line-height:0.4rem;}
+	.weui-dialog__ft{font-size:0.35rem;line-height:1rem;}
+	</style>
+</head>
+
+<body ontouchstart>
+<div class="login">
+	<div class="title">客服工作台 - 登录</div>
+	<form method="post" action="{php echo $this->createMobileUrl('kefulogin',array('op'=>'login'))}" id="form">
+		<div class="flex"><input type="text" name="username" placeholder="请输入用户名" class="flex1"></div>
+		<div class="flex"><input type="password" name="password" placeholder="请输入密码" class="flex1"></div>
+		<div class="flex"><button type="submit" class="flex1">登录</button></div>
+	</form>
+</div>
+<script type="text/javascript" src="{MD_ROOT}static/js/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="{MD_ROOT}static/jqueryweui/js/fastclick.js"></script>
+<script type="text/javascript" src="{MD_ROOT}static/jqueryweui/js/jquery-weui.min.js"></script>
+<script type="text/javascript" src="{MD_ROOT}static/js/jquery.form.js"></script>
+<script type="text/javascript">
+$("#form").ajaxForm({
+	type: "POST",
+	dataType:"json",
+	success: function(data) {
+		if(data.error == 1){
+			$.alert(data.message);
+		}else{
+			window.location.href = '{php echo $this->createMobileUrl("kefucenter")}';
+		}
+	},
+});
+$(function(){
+	FastClick.attach(document.body);
+})
+</script>
+</body>
+</html>

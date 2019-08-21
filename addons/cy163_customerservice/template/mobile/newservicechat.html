@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1,user-scalable=no">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>和{if $biaoqian}[{$biaoqian['name']}]{/if}{$hasfanskefu['fansnickname']}的对话</title>
+	<link rel="stylesheet" href="{MD_ROOT}static/iconfont/iconfont.css?v=20171128"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/css/weui.min.css"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/css/jquery-weui.min.css"/>
+	<link rel="stylesheet" href="{NEWSTATIC_ROOT}/common.css?v=20190731"/>
+	<link rel="stylesheet" href="{MD_ROOT}/emoji/emoji.css"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/newui/css/swiper-3.3.1.min.css"/>
+    <script>
+        var deviceWidth = document.documentElement.clientWidth;
+        document.documentElement.style.fontSize = deviceWidth / 7.5 + 'px';
+    </script>
+	{php echo register_jssdk(false);}
+	<style>
+	body,html,#messibox{width:100%;height:100%;background:#f5f5f5;}
+
+	#messibox #chatcon{background:{php echo $this->module['config']['bgcolor']};}
+	
+	#chatcon .right .con .concon{background:{php echo $this->module["config"]['temcolor']};}
+	#messifooter .docomment{background:{php echo $this->module["config"]['temcolor']};}
+	#chatcon .right .con .triangle-right{border-left:0.15rem solid {php echo $this->module["config"]['temcolor']};}
+	
+	.weui-dialog__btn{color:{php echo $this->module["config"]['temcolor']};}
+	.weui-photo-browser-modal{z-index:99;}
+	
+	.jdmsg{background:#fff;padding:0.2rem;width:100%;}
+	.jdmsg .jdnum{height:0.4rem;line-height:0.4rem;flex:1;color:#333;font-size:0.28rem;}
+	.jdmsg .finishjd{padding:0 0.2rem;height:0.4rem;line-height:0.4rem;background:#41D0FC;color:#fff;border-radius:0.1rem;font-size:0.24rem;}
+	
+	.fkitem{font-size:0.28rem;margin-bottom:0.2rem;width:80%;margin:0 auto;}
+	.fkitem span{color:#4B535F;}
+	.fkitem strong{color:#333;margin-left:0.1rem;}
+	
+	#chatcon{-webkit-tap-highlight-color:transparent;}
+	</style>
+</head>
+
+<body>
+{if $_SERVER['HTTP_REFERER'] && $this->module['config']['detailzs'] != 1}
+<div class="back2 iconfont" onclick="history.go(-1)">&#xe612;</div>
+{/if}
+<div id="messibox" class="flex">
+
+{if $hasfanskefu['nowjd'] > 0}
+<div class="jdmsg flex">
+	<div class="jdnum">当前{$cservice['nowjdnum']}人正在排队</div>
+	<div class="finishjd">结束会话</div>
+</div>
+{/if}
+
+{if $goods}	
+<div class="goods flex">
+	<img src="{$goods['thumb']}" />
+	<div class="goodsmsg flex1">
+		<div class="title textellipsis2">{$goods['title']}</div>
+		<div class="price flex">
+			<div class="pricetext flex1">￥{$goods['price']}</div>
+			<a href="{$goods['url']}">查看商品</a>
+		</div>
+	</div>
+</div>
+{/if}
+
+<div id="chatcon" class="messibox flex1">
+	{loop $chatcon $row}
+		{if !empty($row['time'])}<div class="time text-c">{php echo date('Y-m-d H:i:s',$row['time'])}</div>{/if}
+		<div class="{$row['class']} flex">
+			<img src="{$row['avatar']}" class="avatar" />
+			<div class="con flex flex1">
+				<div class="triangle-{$row['class']}"></div>
+				{if $row['type'] == 3 || $row['type'] == 4}
+				<div class="concon"><img src="{$row['content']}" class="sssbbb" /></div>
+				{elseif $row['type'] == 5 || $row['type'] == 6}
+					<div class="concon voiceplay flex" data-con="{$row['content']}" data-id="{$row['id']}">
+						<i class="a-icon iconfont">&#xe601;</i>
+						{if $row['hasyuyindu'] == 0 && $openid == $row['toopenid']}<span class="weidu">未读</span>{/if}
+						<div class="flex1"></div>
+					</div>
+				{else}
+					<div class="concon">{$row['content']}</div>
+				{/if}
+				<div class="flex1"></div>
+			</div>
+		</div>
+	{/loop}
+</div>
+
+
+<div id="messifooter" class="flex">
+	<img src="{NEWSTATIC_ROOT}/chat-quick.png" class="quick" />
+	{if !empty($_W['fans']['from_user']) && $this->module['config']['voiceon'] == 1}
+		<img src="{NEWSTATIC_ROOT}/chat-yuyin.png" class="audio" />
+		<img src="{NEWSTATIC_ROOT}/chat-wenzi.png" class="jianpan hide" />
+	{/if}
+	<div class="input flex1">
+		<div class="flex1 flex">
+			<textarea id="chatcontent" class="flex1" onkeydown="KeyDown(event)" wrap="virtual" placeholder="请输入咨询内容..."></textarea>
+		</div>
+	</div>
+	<div class="saybutton hide flex1">按住  说话</div>
+	<img src="{NEWSTATIC_ROOT}/chat-face.png" class="qqface" />
+	<img src="{NEWSTATIC_ROOT}/chat-jia.png" class="jia" />
+	<div class="docomment">发送</div>
+</div>
+<div class="showmore hide">
+	<div class="flex">
+		<div class="item">
+			<div class="itemwrap camera">
+				<div class="photo iconfont">&#xe647;</div>
+				<div class="text">上传图片</div>
+			</div>
+		</div>
+		<div class="item">
+			<div class="itemwrap" onclick="location.href = '{php echo $this->createMobileUrl('allshare',array('toopenid'=>$toopenid))}'">
+				<div class="shareall iconfont">&#xe63e;</div>
+				<div class="text">共享聊天</div>
+			</div>
+		</div>
+		<div class="item">
+			<div class="itemwrap">
+				<div class="fansbiaoqian iconfont">&#xe640;</div>
+				<div class="text">粉丝标签</div>
+			</div>
+		</div>
+		<div class="item">
+			<div class="itemwrap">
+				<div class="zhuanjie iconfont">&#xe61a;</div>
+				<div class="text">客服转接</div>
+			</div>
+		</div>
+	</div>
+	<div class="flex">
+		<div class="item">
+			<div class="itemwrap">
+				<div class="othersmsg iconfont">&#xe600;</div>
+				<div class="text">用户信息</div>
+			</div>
+		</div>
+		<div class="item">
+			<div class="itemwrap" onclick="location.href = '{php echo $this->createMobileUrl('zhuizong',array('toopenid'=>$toopenid))}'">
+				<div class="shareall iconfont">&#xe63e;</div>
+				<div class="text">客户追踪</div>
+			</div>
+		</div>
+		<div class="flex1"></div>
+	</div>
+</div>
+<div class="faces hide">
+	<?php 
+		for($i=1;$i<=32;$i++){
+			echo '<img class="faceitem" src="../addons/cy163_customerservice/static/arclist/'.$i.'.png" data-emstr="[em_'.$i.']" />';
+		}
+	?>
+</div>
+</div>
+
+<!--弹出正在录音区域-->
+<div class="fx-audio hide">
+	<i class="audio-start"></i>
+	<p></p>
+</div>
+
+<!--快捷消息-->
+<div class="fx-quick hide meixialert">
+	<div class="title">选择快捷消息</div>
+	<div class="alertcon">
+		{if empty($kefuauto)}
+			<div class="noadata">暂无快捷消息</div>
+		{else}
+			{loop $kefuauto $fansrow}
+				<div class="con-item can" data-type='{$fansrow["kjtype"]}' data-con='{php echo tomedia($fansrow["thumb"])}' data-allcon='{$fansrow["allcon"]}'>
+					{if $fansrow["kjtype"] == 0}
+						{php echo nl2br($fansrow['con']);}
+					{elseif $fansrow["kjtype"] == 1}
+						<img src='{php echo tomedia($fansrow["thumb"])}' />
+					{else}
+						{php echo htmlspecialchars_decode($fansrow["allcon"])}
+					{/if}
+				</div>
+			{/loop}
+		{/if}
+	</div>
+</div>
+
+<!--标签-->
+<div class="hide kefuqrcodediv meixialert">
+	<div class="title">请为您的客户写上备注标签</div>
+	<form action="{php echo $this->createMobileUrl('addbiaoqian')}" method="post" id="bqform">
+	<div class="input-item flex">
+		<input type="text" name="content" placeholder="填写标签名称" value="{$biaoqian['name']}" />
+	</div>
+	<div class="input-item flex">
+		<input type="text" name="realname" placeholder="填写用户姓名" value="{$biaoqian['realname']}" />
+	</div>
+	<div class="input-item flex">
+		<input type="text" name="telphone" placeholder="填写用户手机" value="{$biaoqian['telphone']}" />
+	</div>
+	<div class="button-item flex">
+		<input type="hidden" name="toopenid" value="{$hasfanskefu['fansopenid']}" />
+		<button type="submit" class="subbtn">确定</button>
+	</div>
+	</form>
+</div>
+<!--转接-->
+<div class="hide zhuanjiediv meixialert">
+	<div class="title">请选择要对接的客服</div>
+	<div class="alertcon">
+		{if $othercservice}
+			{loop $othercservice $orow}
+				<div class="con-item othercserviceitem" data-con="{$orow['content']}">{$orow['name']}</div>
+			{/loop}
+		{else}
+			<div class="noadata">暂无客服</div>
+		{/if}
+	</div>
+	<div class="button-item flex">
+		<button type="button" class="subbtn" id="zhuanjiebtn">确定</button>
+	</div>
+</div>
+<!--粉丝信息-->
+<div class="hide othersmsgdiv meixialert">
+	<div class="title">用户信息</div>
+	<div class="alertcon">
+		<div class="fkitem"><span>操作系统</span><strong>{$fangkemsg['os']}</strong></div>
+		<div class="fkitem"><span>浏览器</span><strong>{$fangkemsg['browse']}</strong></div>
+		<div class="fkitem"><span>语言</span><strong>{$fangkemsg['lang']}</strong></div>
+		<div class="fkitem"><span>地区</span><strong>{$fangkemsg['province']}{$fangkemsg['city']}</strong></div>
+		<div class="fkitem"><span>坐标</span><strong>{$fangkemsg['latitude']},{$fangkemsg['longitude']}</strong></div>
+		<div class="fkitem"><span>IP地址</span><strong>{$fangkemsg['ip']}</strong></div>
+	</div>
+	<div class="button-item flex">
+		<button type="button" class="subbtn" id="othersmsgbtn">确定</button>
+	</div>
+</div>
+<div class="blackbg hide"></div>
+
+<!--loading页开始-->
+<div class="loading hide">
+	<div class="loader"></div>
+</div>
+<!--loading页结束-->
+<div id="voicecon" style="display:none;">
+	<audio id="audio" src="{NEWSTATIC_ROOT}/bai.mp3"></audio>
+</div>
+</body>
+<script src="{MD_ROOT}/static/newui/js/socket.io.js"></script>
+<script src="{MD_ROOT}/static/newui/js/jquery-3.1.1.min.js"></script>
+<script src="{MD_ROOT}/static/newui/js/jquery-weui.min.js"></script>
+<script src="{MD_ROOT}static/newui/js/swiper.min.js"></script>
+<script src="{MD_ROOT}static/js/jquery.form.js"></script>
+<script>	
+
+	//滚动加载
+	var loading = false;  //状态标记
+	var count = 2;
+
+	var uid = "{$openid}";
+	var touid = "{$toopenid}";
+	var fkid = "{$hasfanskefu['id']}";
+	var sendurl = 'https://api.qiumipai.com:2121/?type=newpublish&to='+touid;
+	var cansend = 1;
+    $(function(){			
+		domInit();
+		// 连接服务端
+		var socket = io('https://api.qiumipai.com:2120');
+		// 连接后登录
+		socket.on('connect', function(){
+			socket.emit('login',{'uid':uid,'fkid':fkid});
+		});
+		
+		/*socket.on('reconnect', function(){
+			$.ajax({
+				url:"{php echo $this->createMobileUrl('shangxian')}",
+				data:{
+					fkid:fkid,
+					type:'kefu',
+				},
+				dataType:'json',
+				type:'post',        
+				success:function(data){
+				},
+			});
+		});*/
+		
+		// 后端推送来消息时
+		socket.on('new_msg', function(msg){
+			if(msg.toopenid == touid){
+				var returnmsg = replace_em(msg.content);
+				returnmsg = '<div class="time text-c">'+msg.datetime+'</div>'
+							+'<div class="left flex">'
+								+'<img src="{$hasfanskefu['fansavatar']}" class="avatar" />'
+								+'<div class="con flex flex1">'
+									+'<div class="triangle-left"></div>'
+									+returnmsg
+									+'<div class="flex1"></div>'
+								+'</div>'
+							+'</div>';
+				$('#chatcon').append(returnmsg).animate({scrollTop:100000},300);
+				$.ajax({
+					url:"{php echo $this->createMobileUrl('donotread')}",
+					data:{
+						fkid:fkid,
+						type:'kefu',
+					},
+					dataType:'json',
+					type:'post',        
+					success:function(data){
+					},
+				});
+			}
+		});
+
+		{if $total > 10}
+		$("#chatcon").scroll(function(){
+			if($("#chatcon").scrollTop() <= 0){
+				if(loading) return;
+				loading = true;
+				if(count < {$allpage}){
+					$.toast('数据加载中',function(){
+						$.ajax({
+							url:"{php echo $this->createMobileUrl('servicechatajax')}",
+							data:{
+								page:count,
+								isajax:1,
+								fkid:{$hasfanskefu['id']},
+							},
+							dataType:'html',
+							type:'post',        
+							success:function(data){
+								if(data != ''){
+									data = replace_em(data);
+									$("#chatcon").prepend(data).animate({scrollTop:0},300);
+									count++;
+								}
+								loading = false;
+							},
+						});
+					});
+				}
+			}
+		});
+		{/if}
+		
+		$("#chatcon").on("click",".sssbbb", function() {
+			$.ajax({
+				url:"{php echo $this->createMobileUrl('getchatbigimg')}",
+				data:{
+					fkid:{$hasfanskefu['id']},
+					con:$(this).attr("src"),
+				},
+				dataType:'json',
+				type:'post',        
+				success:function(data){
+					if(data.error == 0){
+						var imglistjson = data.message.split(",");
+						var pb = $.photoBrowser({
+							items:imglistjson,
+							initIndex:data.index,
+						});
+						pb.open();  //打开
+					}
+				},
+			});
+		});
+		
+		
+		$(".finishjd").click(function(){
+			$.confirm("确定要结束会话吗？", function() {
+				$.ajax({
+					url:"{php echo $this->createMobileUrl('finishjd');}",   
+					type:'post', 
+					data:{
+						fkid:{$hasfanskefu['id']},
+						id:{$cservice['id']},
+					},
+					dataType:'json',
+					success:function(data){
+						if (data.error == 1) {
+							$.alert(data.msg);
+						}else{
+							$.alert(data.msg,function(){
+								window.location.href = data.url;
+							});
+						}
+					}
+				});
+			}, function() {
+
+			});
+		});
+
+		$(".faceitem").click(function(){
+			$("#chatcontent").val($("#chatcontent").val()+$(this).attr("data-emstr"));
+		});
+		
+		$('#chatcontent').on('blur',function(){
+			setTimeout(function(){
+				window.scrollTo(0, 0)
+			},100)
+		});
+		
+		$('#chatcontent').on('focus',function(){
+			//$("#chatcon").animate({scrollTop:10000000},300);
+			setTimeout(function() {
+				$('#chatcon').scrollTop(10000000);
+				$('body').scrollTop($('body')[0].scrollHeight);
+			}, 100);
+		});
+		
+		$(".jia").click(function(){
+			$(".faces").addClass('hide');
+			$('.showmore').toggleClass('hide');
+		});
+		
+		$(".qqface").click(function(){
+			$(".showmore").addClass('hide');
+			$(".faces").toggleClass('hide');
+		});
+		
+		$('.fansbiaoqian').click(function(){
+			$('.kefuqrcodediv,.blackbg').removeClass('hide');
+		});
+		$('.zhuanjie').click(function(){
+			$('.zhuanjiediv,.blackbg').removeClass('hide');
+		});
+		$('.othercserviceitem').click(function(){
+			$('.othercserviceitem').removeClass('con-item-now');
+			$(this).addClass('con-item-now');
+		});
+		$('.othersmsg').click(function(){
+			$('.othersmsgdiv,.blackbg').removeClass('hide');
+		});
+		$("#othersmsgbtn").click(function(){
+			$('.othersmsgdiv,.blackbg').addClass('hide');
+		});
+		
+		$('#zhuanjiebtn').click(function(){
+			$.ajax({   
+				 url:"{php echo $this->createMobileUrl('zhuanjie')}",   
+				 type:'post', 
+				 data:{
+					toopenid:touid,
+					content:$('.zhuanjiediv .con-item-now').attr('data-con'),
+				 },
+				 dataType:'json',
+				 success:function(data){   
+					if(data.error == 0){
+						$.alert(data.msg,function(){
+							$(".zhuanjiediv,.blackbg").addClass("hide");
+							$.ajax({   
+								url:sendurl,   
+								type:'get', 
+								data:{
+									zhuanjie:1,
+									toopenid:data.toopenid,
+									content:'',
+									msgtype:0,
+								},
+								dataType:'jsonp',
+								success:function(data){ 
+								}
+							});	
+						});
+					}else{
+						$.alert(data.msg);
+					}
+				 }
+			});
+		});
+		
+		
+		$("#bqform").ajaxForm({
+			type: "POST",
+			dataType:"json",
+			success: function(data) {
+				if(data.error == 0){
+					$.alert(data.msg,function(){
+						$(".kefuqrcodediv,.blackbg").addClass("hide");
+					});
+				}else{
+					$.alert(data.msg);
+				}
+			},
+		});
+		
+		$(".quick").on("click",function(){
+			$(".fx-quick,.blackbg").removeClass("hide");
+		})
+		
+		$('.fx-quick .can').click(function(){
+			if($(this).attr('data-type') == 0 || $(this).attr('data-type') == 2){
+				if($(this).attr('data-type') == 0){
+					addchat($(this).text(),2);
+				}else{
+					addchat($(this).attr('data-allcon'),2,1);
+				}
+			}else{
+				addchat($(this).attr('data-con'),3);
+			}
+			$('.fx-quick,.blackbg').addClass("hide");
+		});
+		
+		$(".blackbg").on("click",function(){
+			$(".fx-quick,.zhuanjiediv,.kefuqrcodediv,.othersmsgdiv,.blackbg").addClass("hide");
+		})
+
+        //点击发送按钮
+        $(".docomment").on("mousedown",function(){
+			addchat($("#chatcontent").val(),2);
+        });
+
+        //录音按钮
+		$(".audio").on("click",function(){
+			$(".audio,.input").addClass("hide");
+			$(".jianpan,.saybutton").removeClass("hide");
+		});
+		
+		//键盘
+		$(".jianpan").on("click",function(){
+			$(".audio,.input").removeClass("hide");
+			$(".jianpan,.saybutton").addClass("hide");
+		});
+		
+
+		//播放语音		
+		$("#chatcon").on("click",".voiceplay", function() {
+			var objvoice = $(this);
+			var media_id = objvoice.attr('data-con');
+			var chatid = objvoice.attr('data-id');
+			if(media_id.indexOf(".mp3") == -1){
+				$.ajax({
+					url:"{php echo $this->createMobileUrl('getvoice');}",   
+					type:'post', 
+					data:{
+						fkid:{$hasfanskefu['id']},
+						media_id:media_id,
+						chatid:chatid,
+					},
+					beforeSend:function(){
+						$(".loading .loader").text('语音加载中');
+						$(".loading").removeClass("hide");
+						document.getElementById('audio').play();
+						document.getElementById('audio').pause();
+					},
+					dataType:'json',
+					success:function(data){
+						if (data.error == 1) {
+							$(".loading").addClass("hide");
+							$.alert(data.msg);
+						}else{
+							objvoice.attr('data-con',data.voicefile);
+							if (data.weidu == 1){
+								objvoice.children('.weidu').remove();
+							}
+							playMusic(data.voicefile);
+						}
+					}
+				});
+			}else{
+				$.ajax({
+					url:"{php echo $this->createMobileUrl('duvoice');}",   
+					type:'post', 
+					data:{
+						fkid:{$hasfanskefu['id']},
+						media_id:media_id,
+					},
+					beforeSend:function(){
+						$(".loading .loader").text('语音加载中');
+						$(".loading").removeClass("hide");
+						document.getElementById('audio').play();
+						document.getElementById('audio').pause();
+					},
+					dataType:'json',
+					success:function(data){
+						objvoice.children('.weidu').remove();
+						playMusic(media_id);
+					}
+				});
+			}
+		});
+		
+    });
+	
+	function playMusic(path) {
+		var timestamp = (new Date()).getTime();
+      	path = path+'?time='+timestamp+Math.random();
+		var audioEle = document.getElementById('audio');
+		audioEle.src = path;
+		$(".loading .loader").text('语音播放中');
+		audioEle.pause();
+		audioEle.currentTime = 0;
+		audioEle.play();
+		audioEle.addEventListener('error', function (e) {
+			$(".loading").addClass("hide");
+			$.alert('加载语音失败，请重新尝试！');
+		});	
+		audio.addEventListener('ended', function () {
+			$(".loading").addClass("hide");
+		}, false);
+	}
+
+	//发送消息到数据库
+	function addchat(content,type,istuwen = 0){
+		if(cansend == 1){
+			cansend = 0;
+			$.ajax({   
+				 url:"{php echo $this->createMobileUrl('addchat2')}",   
+				 type:'post', 
+				 data:{
+					toopenid:touid,
+					content:content,
+					fkid:{$hasfanskefu['id']},
+					type:type,
+					token:"{$_W['token']}",
+					submit:1,
+					istuwen:istuwen,
+				 },
+				 beforeSend:function(){
+					$(".loading .loader").text('正在发送');
+					$(".loading").removeClass("hide");
+				 },
+				 dataType:'json',
+				 success:function(data){   
+					if(data.error == 0){
+						var returnmsg = replace_em(data.content);									
+						returnmsg = '<div class="time text-c">'+data.datetime+'</div>'
+									+'<div class="right flex">'
+										+'<img src="{$hasfanskefu['kefuavatar']}" class="avatar" />'
+										+'<div class="con flex flex1">'
+											+'<div class="triangle-right"></div>'
+											+ returnmsg
+											+'<div class="flex1"></div>'
+										+'</div>'
+									+'</div>';
+						$('#chatcon').append(returnmsg).animate({scrollTop:10000000},300);
+						$('#chatcontent').val("");
+						
+						$.ajax({   
+							url:sendurl,   
+							type:'get', 
+							data:{
+								content:content,
+								msgtype:type,
+								toopenid:uid,
+								chatid:data.chatid,
+								istuwen:istuwen,
+							},
+							dataType:'jsonp',
+							success:function(data){ 
+							}
+						});	
+					}else{
+						$.alert(data.msg);
+					}
+					cansend = 1;
+					$(".loading").addClass("hide");
+				 }
+			});
+		}
+	}
+	
+	//查看QQ表情结果
+	function replace_em(str){
+		str = str.replace(/\[em_([0-9]*)\]/g,'<img src="{MD_ROOT}/static/arclist/$1.png" style="width:0.4rem;height:0.4rem;margin-left:0.05rem;" border="0" />');
+		return str;
+	}
+    function domInit(){
+		$("#chatcon").animate({scrollTop:10000000},300);
+		$('.concon').each(function(){
+			$(this).html(replace_em($(this).html()));
+		});
+		/*$.ajax({
+			url:"{php echo $this->createMobileUrl('shangxian')}",
+			data:{
+				fkid:fkid,
+				type:'kefu',
+			},
+			dataType:'json',
+			type:'post',        
+			success:function(data){
+			},
+		});*/
+    }
+	function KeyDown(event){
+		if (event.keyCode==13){
+			event.returnValue=false;
+			event.cancel = true;
+			addchat($("#chatcontent").val(),2);
+		}
+	}
+</script>
+<script type="text/javascript">
+var images = {
+	localIds: [],
+};
+var voice = {
+	localId: '',
+	serverId: ''
+};
+
+$(function(){
+	//按下录音假设全局变量已经在外部定义
+	$(".saybutton").on("touchstart",function(event){
+		wx.stopRecord();
+		event.preventDefault();
+		START = new Date().getTime();
+		$(".saybutton").text("松开  结束");
+		$(".fx-audio").removeClass('hide');
+		$(".fx-audio p").text('准备录音中...');
+		$(".audio-start").html('<span class="iconfont">&#xe643;</span>');
+		if(!localStorage.rainAllowRecord || localStorage.rainAllowRecord !== 'true'){
+			wx.startRecord({
+				success: function(){
+					wx.stopRecord();
+					localStorage.rainAllowRecord = 'true';
+				},
+				cancel: function () {
+					wx.stopRecord();
+					$.toast("您拒绝授权录音", "cancel");
+				}
+			});
+		}else{
+			recordTimer = setTimeout(function(){
+				wx.startRecord({
+					success: function(){
+						localStorage.rainAllowRecord = 'true';
+						$(".fx-audio p").text('正在录音中...');
+						
+						lynum = 59;
+						lyname = setInterval(function() {
+							if(lynum <= 10 && lynum > 0){
+								$(".audio-start").html(lynum);// 你倒计时显示的地方元素
+							}
+							lynum--;
+							if(lynum == 0){          
+								clearInterval(lyname);
+								wx.stopRecord({
+									success: function (res) {
+										voice.localId = res.localId;
+										$('.fx-audio').addClass("hide");
+										uploadVoice();
+									},
+									fail: function (res) {
+										$.toast("停止录音异常", "forbidden");
+									}
+								});
+							}
+						}, 1000);
+					},
+					cancel: function () {
+						$.toast("您拒绝授权录音", "cancel");
+					}
+				});
+			},300);
+		}
+	});
+
+	//松手结束录音
+	$(".saybutton").on('touchend', function(event){
+		event.preventDefault();
+		END = new Date().getTime();
+		$(".saybutton").text('按住  说话');
+		$('.fx-audio').addClass("hide");
+		if((END - START) < 300){
+			END = 0;
+			START = 0;
+			clearTimeout(recordTimer);
+			$.toast("录音时间太短", "forbidden");
+		}else{
+			setTimeout(function(){
+				clearInterval(lyname);
+				wx.stopRecord({
+					success: function (res) {
+						voice.localId = res.localId;
+						uploadVoice();
+					},
+					fail: function (res) {
+						$.toast("停止录音异常", "forbidden");
+					}
+				});
+			},300);
+		}
+	});
+	//上传录音
+	function uploadVoice(){
+		wx.uploadVoice({
+			localId: voice.localId, // 需要上传的音频的本地ID，由stopRecord接口获得
+			isShowProgressTips: 1, // 默认为1，显示进度提示
+			success: function (res) {
+				addchat(res.serverId,6);
+			}
+		});
+	}
+	$('.camera').click(function(){
+		wx.chooseImage({
+			count: 3, // 最多选3张
+			sizeType: ['compressed'], // 可以指定是原图还是压缩图，默认二者都有
+			sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+			success: function(res) {
+				images.localIds = res.localIds; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
+				var i = 0; var length = images.localIds.length;
+				var upload = function() {
+					wx.uploadImage({
+						localId:'' + images.localIds[i],
+						isShowProgressTips: 1,
+						success: function(res) {
+							var serverId = res.serverId;
+							$.ajax({   
+								 url:"{php echo $this->createMobileUrl('getmedia')}",   
+								 type:'post', 
+								 data:{
+									media_id:serverId,
+								 },
+								 dataType:'json',
+								 success:function(data){   
+									if (data.error == 1) {
+										$.alert(data.message);
+									} else {
+										addchat(data.imgurl,3);
+									}  
+								 }
+							});
+							//如果还有照片，继续上传
+							i++;
+							if (i < length) {
+								upload();
+							}
+						}
+					});                    
+				};
+				upload();
+			}
+		});
+	});
+})
+</script>
+<script type="text/javascript">
+wx.ready(function () {
+	wx.hideOptionMenu();
+	//注册微信播放录音结束事件【一定要放在wx.ready函数内】
+	wx.onVoicePlayEnd({
+		success: function (res) {
+
+		}
+	});
+	wx.onVoiceRecordEnd({
+		complete: function (res) {
+			voice.localId = res.localId;
+			$.toast("录音时间已超过一分钟", "forbidden");
+		}
+	});
+});
+</script>
+<script type="text/javascript">
+window.onpageshow = function(event){
+	if (event.persisted) {
+		window.location.reload();
+	}
+}
+</script>
+</html>

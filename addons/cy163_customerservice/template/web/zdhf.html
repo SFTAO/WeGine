@@ -1,0 +1,138 @@
+{template 'common/header'}
+<style>
+.hide{display:none;}
+</style>
+<ul class="nav nav-tabs">
+	<li {if $operation == 'display'} class="active" {/if}><a href="{php echo $this->createWebUrl('zdhf',array('op' =>'display'))}">自动回复列表</a></li>
+	<li{if empty($zdhf['id']) && $operation == 'post'} class="active" {/if}><a href="{php echo $this->createWebUrl('zdhf',array('op' =>'post'))}">添加自动回复</a></li>
+	{if !empty($zdhf['id']) &&  $operation == 'post'}<li  class="active"><a href="{php echo $this->createWebUrl('zdhf',array('op' =>'post','id'=>$zdhf['id']))}">编辑自动回复</a></li>{/if}
+</ul>
+
+{if $operation == 'display'}
+<div class="main panel panel-default">
+	<div class="panel-body table-responsive">
+		<form action="" method="post">
+		<table class="table table-hover">
+			<thead class="navbar-inner">
+				<tr>
+					<th style="width:8%;">权重</th>
+					<th width="20%">标题</th>
+					<th width="50%">内容</th>
+					<th style="text-align:right;">操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				{loop $list $zdhf}
+				<tr>
+					<td><input class="form-control" name="displayorder[{$zdhf['id']}]" value="{$zdhf['paixu']}" type="text"></td>
+					<td><span class="label label-success">{$zdhf['title']}</span></td>
+					<td>
+						{if $zdhf['hftype'] == 0}
+							{$zdhf['content']}
+						{elseif $zdhf['hftype'] == 2}
+							<span style="color:green;">[图片内容]</span>
+						{else}
+							<span style="color:green;">[混合内容]</span>
+						{/if}
+					</td>
+					<td style="text-align:right;">
+						<a href="{php echo $this->createWebUrl('zdhf', array('op' => 'post', 'id' => $zdhf['id']))}" class="btn btn-default btn-sm" data-toggle="tooltip" data-placement="top" title="修改"><i class="fa fa-edit"></i></a>
+						<a href="{php echo $this->createWebUrl('zdhf', array('op' => 'delete', 'id' => $zdhf['id']))}"class="btn btn-default btn-sm" onclick="return confirm('此操作不可恢复，确认删除？');return false;" data-toggle="tooltip" data-placement="top" title="删除"><i class="fa fa-times"></i></a>
+					</td>
+				</tr>
+				{/loop}
+				<tr>
+					<td colspan="4">
+						<input name="submit" class="btn btn-primary" value="提交" type="submit">
+						<input name="token" value="{$_W['token']}" type="hidden">
+						<span style="color:red;">*权重数值越大越先被匹配到</span>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		</form>
+	</div>
+	{$pager}
+</div>
+<script>
+
+</script>
+{elseif $operation == 'post'}
+<div class="main">
+	<form action="" method="post" class="form-horizontal form" enctype="multipart/form-data" onsubmit='return formcheck()'>
+		<input type="hidden" name="id" value="{$zdhf['id']}" />
+		<div class="panel panel-default">
+			<div class="panel-heading">自动回复设置</div>
+			<div class="panel-body">
+
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">标题</label>
+					<div class="col-sm-9 col-xs-12">
+						<input type="text" name="title" class="form-control" value="{$zdhf['title']}" />
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">匹配类型</label>
+					<div class="col-sm-9 col-xs-12">
+						<label for="type1" class="radio-inline"><input name="type" value="1" id="type1" {if $zdhf['type'] == 1}checked="true"{/if} type="radio"> 精确</label>
+						&nbsp;&nbsp;&nbsp;
+						<label for="type2" class="radio-inline"><input name="type" value="2" id="type2" {if $zdhf['type'] == 2}checked="true"{/if} type="radio"> 包含</label>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">回复类型</label>
+					<div class="col-sm-9 col-xs-12">
+						<label for="hftype1" class="radio-inline"><input name="hftype" value="0" id="hftype1" {if $zdhf['hftype'] == 0}checked="true"{/if} type="radio"> 文本</label>
+						&nbsp;&nbsp;&nbsp;
+						<label for="hftype2" class="radio-inline"><input name="hftype" value="2" id="hftype2" {if $zdhf['hftype'] == 2}checked="true"{/if} type="radio"> 图片</label>
+						&nbsp;&nbsp;&nbsp;
+						<label for="hftype3" class="radio-inline"><input name="hftype" value="3" id="hftype3" {if $zdhf['hftype'] == 3}checked="true"{/if} type="radio"> 混合内容</label>
+					</div>
+				</div>
+				
+				<div class="form-group" id="hfcon0">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">自动回复内容</label>
+					<div class="col-sm-9 col-xs-12">						
+						<textarea type="text" name="content" style="height:100px;" class="form-control">{$zdhf['content']}</textarea>
+						<span class="help-block" style="color:red;">*如需使用连接，请使用a标签</span>
+					</div>
+				</div>
+				
+				<div class="form-group hide" id="hfcon2">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">自动回复图片</label>
+					<div class="col-sm-9 col-xs-12">
+						{php echo tpl_form_field_image('imgcon', $zdhf['imgcon'], '', array('extras' => array('text' => 'readonly')))}
+					</div>
+				</div>
+				
+				<div class="form-group hide" id="hfcon3">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">混合内容</label>
+					<div class="col-sm-9 col-xs-12">
+						{php echo tpl_ueditor('allcon', $zdhf['allcon']);}
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="form-group col-sm-12">
+			<input type="submit" name="submit" value="提交" class="btn btn-primary col-lg-1" />
+			<input type="hidden" name="token" value="{$_W['token']}" />
+		</div>
+	</form>
+</div>
+<script>
+$(function(){
+	{if $id}
+		$("#hfcon0,#hfcon2,#hfcon3").addClass("hide");
+		$("#hfcon{$zdhf['hftype']}").removeClass("hide");
+	{/if}
+	$("input[name='hftype']").click(function(){
+		var val = $(this).val();
+		$("#hfcon0,#hfcon2,#hfcon3").addClass("hide");
+		$("#hfcon"+val).removeClass("hide");
+	});
+})
+</script>
+{/if}
+{template 'common/footer'}

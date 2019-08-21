@@ -1,0 +1,122 @@
+<html style="background:#f5f5f5;">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1,user-scalable=no">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>{$cservicegroup['name']}</title>
+    <link rel="stylesheet" href="{NEWSTATIC_ROOT}/jqueryweui/css/weui.min.css"/>
+	<link rel="stylesheet" href="{NEWSTATIC_ROOT}/jqueryweui/css/jquery-weui.min.css"/>
+	<link rel="stylesheet" href="{NEWSTATIC_ROOT}/common.css?v=20180813"/>
+    <script>
+        var deviceWidth = document.documentElement.clientWidth;
+        document.documentElement.style.fontSize = deviceWidth / 7.5 + 'px';
+    </script>
+	{php echo register_jssdk(false);}
+	<style>
+	.kefulist .item{padding:0.2rem;border-bottom:solid 1px #f1f1f1;background:#fff;}
+	.kefulist .item img{width:0.8rem;height:0.8rem;border-radius:100%;}
+	.kefulist .item .right{
+		margin-left:0.2rem;
+	}
+	.kefulist .item .right .kefuname{
+		line-height:0.8rem;
+		font-size:0.3rem;
+		color:#333;
+	}
+	.kefulist .item .right .fname{line-height:0.8rem;font-size:0.26rem;color:#999;}
+	.kefulist .item .right .jtyou{width:0.4rem;height:0.4rem;margin-top:0.2rem;margin-left:0.1rem;}
+	
+	
+	.copyright a,#footer .now .text{color:{php echo $this->module["config"]['temcolor']};}
+	#footer .item .badge{right:44%;}
+	</style>
+</head>
+
+<body style="background:#f5f5f5;">
+
+{if $cservicelist || $cservicegrouplist}
+<div class="kefulist">
+	{loop $cservicegrouplist $row}
+	<a href="{php echo $this->createMobileUrl('groupchat',array('id'=>$row['id'],'qudao'=>$_GPC['qudao'],'goodsid'=>$_GPC['goodsid'],'merchid'=>$_GPC['merchid']))}">
+	<div class="item flex">
+		<img src="{php echo tomedia($row['thumb'])}">
+		<div class="right flex flex1">
+			<div class="kefuname flex1">{$row['name']}</div>
+			<div class="fname text-r">{$row['typename']}</div>
+			<img src="{NEWSTATIC_ROOT}/jt-you.png" class="jtyou" />
+		</div>
+	</div>
+	</a>
+	{/loop}
+	{loop $cservicelist $row}
+		{if $row['ctype'] == 1}
+		<a href="{php echo $this->createMobileUrl('chat',array('toopenid'=>$row['content'],'goodsid'=>$goodsid,'qudao'=>$qudao,'merchid'=>$_GPC['merchid']))}">
+		{/if}
+		{if $row['ctype'] == 2}
+		<a href="http://wpa.qq.com/msgrd?v=3&uin={$row['content']}&site=qq&menu=yes">
+		{/if}
+		{if $row['ctype'] == 3}
+		<a href="tel:{$row['content']}">
+		{/if}
+		{if $row['ctype'] == 4}
+		<a href="tel:{$row['content']}">
+		{/if}
+		<div class="item flex">
+			<img src="{php echo tomedia($row['thumb'])}">
+			<div class="right flex flex1">
+				<div class="kefuname flex1">{$row['name']}</div>
+				<div class="fname text-r">{$row['typename']}</div>
+				<img src="{NEWSTATIC_ROOT}/jt-you.png" class="jtyou" />
+			</div>
+		</div>
+		</a>
+	{/loop}
+</div>
+{else}
+	<div class="nodata text-c">
+		<img src="{NEWSTATIC_ROOT}/nodata.png" />
+		<div class="text">{if $cservicegroup['notext']}{$cservicegroup['notext']}{else}暂没有客服哦{/if}</div>
+	</div>
+{/if}
+
+<div class="copyright text-c">{php echo nl2br($this->module["config"]['copyright'])}</div>
+
+<script src="{NEWSTATIC_ROOT}/jqueryweui/js/jquery-3.1.1.min.js"></script>
+<script src="{NEWSTATIC_ROOT}/jqueryweui/js/jquery-weui.min.js"></script>
+<script src="{NEWSTATIC_ROOT}/jqueryweui/js/fastclick.js"></script>
+<script type="text/javascript">
+$(function(){
+	FastClick.attach(document.body);
+})
+</script>
+<script type="text/javascript">
+wx.ready(function () {
+	sharedata = {
+		title: '{$cservicegroup["name"]}',
+		desc: '{php echo $this->module["config"]["sharedes"]}',
+		link: '{php echo $this->module["config"]["shareurl"]}',
+		imgUrl: '{php echo tomedia($this->module["config"]["sharethumb"]);}',
+		trigger: function (res) {
+			//alert('用户点击发送给朋友');
+		},
+		success: function (res) {
+			//alert('已分享');
+		},
+		cancel: function (res) {
+			//alert('已取消');
+		},
+		fail: function (res) {
+			alert("分享失败");
+		}
+	};
+	wx.onMenuShareAppMessage(sharedata);
+	wx.onMenuShareTimeline(sharedata);
+	wx.onMenuShareQQ(sharedata);
+	wx.onMenuShareWeibo(sharedata);
+});
+</script>
+</body>
+</html>

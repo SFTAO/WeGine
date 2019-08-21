@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1,user-scalable=no">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>和[{$xcxres['name']}]{if $biaoqian}[{$biaoqian['name']}]{/if}{if $hasfanskefu['fansnickname']}{$hasfanskefu['fansnickname']}{else}用户{/if}的对话</title>
+	<link rel="stylesheet" href="{MD_ROOT}static/iconfont/iconfont.css?v=20171128"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/css/weui.min.css"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/css/jquery-weui.min.css"/>
+	<link rel="stylesheet" href="{NEWSTATIC_ROOT}/common.css?v=20190609"/>
+	<link rel="stylesheet" href="{MD_ROOT}/emoji/emoji.css"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/newui/css/swiper-3.3.1.min.css"/>
+    <script>
+        var deviceWidth = document.documentElement.clientWidth;
+        document.documentElement.style.fontSize = deviceWidth / 7.5 + 'px';
+    </script>
+	{php echo register_jssdk(false);}
+	<style>
+	body,html,#messibox{width:100%;height:100%;background:#f5f5f5;}
+	
+	#chatcon .right .con .concon{background:{php echo $this->module['config']['temcolor']};}
+
+	#messifooter .docomment{background:{php echo $this->module['config']['temcolor']};margin-left:0.1rem;}
+	#chatcon .right .con .triangle-right{border-left:0.15rem solid {php echo $this->module['config']['temcolor']};}
+	
+	.tuwen{width:4.2rem;}
+	.tuwen .tuwen-title{color:#fff;font-size:0.32rem;line-height:0.35rem;margin-bottom:0.1rem;}
+	.tuwen .tuwen-bottom .tuwen-des{font-size:0.28rem;line-height:0.3rem;color:#ccc;margin-right:0.1rem;flex:1;}
+	.tuwen .tuwen-bottom .tuwen-img{width:1rem;height:1rem;}
+	
+	.weui-dialog__btn{color:{php echo $this->module["config"]['temcolor']};}
+	.weui-photo-browser-modal{z-index:99;}
+	</style>
+</head>
+
+<body style="background-color:{php echo $this->module['config']['bgcolor']};">
+{if $_SERVER['HTTP_REFERER']}
+<div class="back2 iconfont" onclick="history.go(-1)">&#xe612;</div>
+{/if}
+<div id="messibox" class="flex">
+
+<div id="chatcon" class="messibox flex1">
+	{loop $chatcon $row}
+		{if !empty($row['time'])}
+		<div class="time text-c">{php echo date('Y-m-d H:i:s',$row['time'])}</div>
+		{/if}
+		{if $row['openid'] == $hasfanskefu['fansopenid']}
+			<div class="left flex">
+				{if $hasfanskefu['fansavatar']}
+				<img src="{$hasfanskefu['fansavatar']}" class="avatar" />
+				{else}
+				<img src="{MD_ROOT}static/xcx.png" class="avatar" />
+				{/if}
+				<div class="con flex flex1">
+					<div class="triangle-left"></div>
+					{if $row['msgtype'] == 'image'}
+						<div class="concon"><img src="{$row['content']}" class="sssbbb" /></div>
+					{/if}
+					{if $row['msgtype'] == 'text'}
+						<div class="concon">{$row['content']}</div>
+					{/if}
+					<div class="flex1"></div>
+				</div>
+			</div>
+		{else}
+			<div class="right flex">
+				<img src="{$row['kefuavatar']}" class="avatar" />
+				<div class="con flex flex1">
+					<div class="triangle-right"></div>
+					{if $row['msgtype'] == 'image'}
+						<div class="concon"><img src="{$row['content']}" class="sssbbb" /></div>
+					{/if}
+					{if $row['msgtype'] == 'text'}
+						<div class="concon">{$row['content']}</div>
+					{/if}
+					{if $row['msgtype'] == 'link'}
+						<div class="concon">
+							<a href="{$row['url']}">
+							<div class="tuwen">
+								<div class="tuwen-title">{$row['title']}</div>
+								<div class="tuwen-bottom flex">
+									<div class="tuwen-des">{$row['description']}</div>
+									<img src="{$row['thumb_url']}" class="tuwen-img" />
+								</div>
+							</div>
+							</a>
+						</div>
+					{/if}
+					<div class="flex1"></div>
+				</div>
+			</div>
+		{/if}
+	{/loop}
+</div>
+
+<div id="messifooter" class="flex">
+	<img src="{NEWSTATIC_ROOT}/chat-quick.png" class="quick" />
+	<div class="input flex1">
+		<div class="flex1 flex">
+			<textarea id="chatcontent" class="flex1" onkeydown="KeyDown(event)" wrap="virtual" placeholder="请输入咨询内容..."></textarea>
+		</div>
+	</div>
+	<img src="{NEWSTATIC_ROOT}/chat-jia.png" class="jia" />
+	<div class="docomment">发送</div>
+</div>
+
+
+<div class="showmore hide">
+	<div class="flex">
+		<div class="item">
+			<div class="itemwrap camera">
+				<div class="photo iconfont">&#xe647;</div>
+				<div class="text">上传图片</div>
+			</div>
+		</div>
+		<div class="item">
+			<div class="itemwrap">
+				<div class="fansbiaoqian iconfont">&#xe640;</div>
+				<div class="text">粉丝标签</div>
+			</div>
+		</div>
+		<div class="item">
+			<a href="{php echo $this->createMobileUrl('mychatxcx')}">
+			<div class="itemwrap">
+				<div class="iconfont">&#xe66d;</div>
+				<div class="text">消息列表</div>
+			</div>
+			</a>
+		</div>
+		<div class="flex1"></div>
+	</div>
+</div>
+
+</div>
+
+
+<div class="blackbg hide"></div>
+
+<!--loading页开始-->
+<div class="loading hide">
+	<div class="loader">正在发送...</div>
+</div>
+<!--loading页结束-->
+
+<!--快捷消息-->
+<div class="fx-quick hide meixialert">
+	<div class="title">选择快捷消息</div>
+	<div class="alertcon">
+		{if empty($kefuauto)}
+			<div class="noadata">暂无快捷消息</div>
+		{else}
+			{loop $kefuauto $fansrow}
+				<div class="con-item can">{$fansrow}</div>
+			{/loop}
+		{/if}
+	</div>
+</div>
+
+<!--标签-->
+<div class="hide kefuqrcodediv meixialert">
+	<div class="title">请为您的客户写上备注标签</div>
+	<form action="{php echo $this->createMobileUrl('addbiaoqian')}" method="post" id="bqform">
+	<div class="input-item flex">
+		<input type="text" name="content" placeholder="填写标签名称" value="{$biaoqian['name']}" />
+	</div>
+	<div class="input-item flex">
+		<input type="text" name="realname" placeholder="填写用户姓名" value="{$biaoqian['realname']}" />
+	</div>
+	<div class="input-item flex">
+		<input type="text" name="telphone" placeholder="填写用户手机" value="{$biaoqian['telphone']}" />
+	</div>
+	<div class="button-item flex">
+		<input type="hidden" name="toopenid" value="{$hasfanskefu['fansopenid']}" />
+		<button type="submit" class="subbtn">确定</button>
+	</div>
+	</form>
+</div>
+</body>
+<script src="{MD_ROOT}/static/newui/js/socket.io.js"></script>
+<script src="{MD_ROOT}/static/newui/js/jquery-3.1.1.min.js"></script>
+<script src="{MD_ROOT}/static/newui/js/jquery-weui.min.js"></script>
+<script src="{MD_ROOT}static/newui/js/swiper.min.js"></script>
+<script src="{MD_ROOT}static/js/jquery.form.js"></script>
+<script>
+	var overscroll = function(el) {
+	  el.addEventListener('touchstart', function() {
+		var top = el.scrollTop,totalScroll = el.scrollHeight,currentScroll = top + el.offsetHeight;
+		if(top === 0) {
+		  el.scrollTop = 1;
+		} else if(currentScroll === totalScroll) {
+		  el.scrollTop = top - 1;
+		}
+		var left = el.scrollLeft,totalScroll2 = el.scrollWidth,currentScroll2 = left + el.offsetWidth;
+		if(left === 0) {
+		  el.scrollLeft = 1;
+		} else if(currentScroll2 === totalScroll2) {
+		  el.scrollLeft = left - 1;
+		}
+	  });
+	  el.addEventListener('touchmove', function(evt) {
+		if(el.offsetHeight < el.scrollHeight || el.offsetWidth < el.scrollWidth)
+		  evt._isScroller = true;
+	  },{passive:false});
+	};
+	
+	overscroll(document.querySelector('.messibox'));
+	overscroll(document.querySelector('.alertcon'));
+	
+	document.body.addEventListener('touchmove', function(evt) {
+	  if(!evt._isScroller) {
+		evt.preventDefault();
+	  }
+	},{passive:false});
+	//滚动加载
+	var loading = false;  //状态标记
+	var count = 2;
+	
+	{if $hasfanskefu['fansavatar']}
+	var toavatar = "{$hasfanskefu['fansavatar']}";
+	{else}
+	var toavatar = "{MD_ROOT}static/xcx.png";
+	{/if}
+	var uid = "{$openid}";
+	var touid = "{$hasfanskefu['fansopenid']}";
+	var fkid = "{$hasfanskefu['id']}";
+	var cansend = 1;
+    $(function(){		
+		domInit();
+		//连接服务端
+		var socket = io('https://api.qiumipai.com:2120');
+		// 连接后登录
+		socket.on('connect', function(){
+			socket.emit('login',{'uid':uid,'fkid':fkid});
+		});
+		
+		socket.on('new_msg', function(msg){
+			if(msg.toopenid == touid && msg.fromtype == 'xcx'){
+				var returnmsg = msg.content;
+				returnmsg = '<div class="time text-c">'+msg.datetime+'</div>'
+							+'<div class="left flex">'
+								+'<img src="'+toavatar+'" class="avatar" />'
+								+'<div class="con flex flex1">'
+									+'<div class="triangle-left"></div>'
+									+returnmsg
+									+'<div class="flex1"></div>'
+								+'</div>'
+							+'</div>';
+				$('#chatcon').append(returnmsg).animate({scrollTop:100000},300);
+				$.ajax({
+					url:"{php echo $this->createMobileUrl('donotreadxcx')}",
+					data:{
+						fkid:fkid,
+					},
+					dataType:'json',
+					type:'post',        
+					success:function(data){
+					},
+				});
+			}
+		});
+		
+		{if $total > 10}
+		$("#chatcon").scroll(function(){
+			if($("#chatcon").scrollTop() <= 0){
+				if(loading) return;
+				loading = true;
+				if(count < {$allpage}){
+					$.toast('数据加载中',function(){
+						$.ajax({
+							url:"{php echo $this->createMobileUrl('servicechatajaxxcx')}",
+							data:{
+								page:count,
+								fkid:{$hasfanskefu['id']},
+							},
+							dataType:'html',
+							type:'post',        
+							success:function(data){
+								if(data != ''){
+									$('#chatcon').prepend(data);
+									$("#chatcon").animate({scrollTop:0},300);
+									count++;
+								}
+								loading = false;
+							},
+						});
+					});
+				}
+			}
+		});
+		{/if}
+		
+		$(".jia").click(function(){
+			$('.showmore').toggleClass('hide');
+		});
+		
+		$('.fansbiaoqian').click(function(){
+			$('.kefuqrcodediv,.blackbg').removeClass('hide');
+		});
+		
+		$("#bqform").ajaxForm({
+			type: "POST",
+			dataType:"json",
+			success: function(data) {
+				if(data.error == 0){
+					$.alert(data.msg,function(){
+						$(".kefuqrcodediv,.blackbg").addClass("hide");
+					});
+				}else{
+					$.alert(data.msg);
+				}
+			},
+		});
+		
+		$(".blackbg").on("click",function(){
+			$(".fx-quick,.kefuqrcodediv,.blackbg").addClass("hide");
+		})
+		
+		$("#chatcon").on("click",".sssbbb", function() {
+			$.ajax({
+				url:"{php echo $this->createMobileUrl('getchatbigimgxcx')}",
+				data:{
+					fkid:{$hasfanskefu['id']},
+					con:$(this).attr("src"),
+				},
+				dataType:'json',
+				type:'post',        
+				success:function(data){
+					if(data.error == 0){
+						var imglistjson = data.message.split(",");
+						var pb = $.photoBrowser({
+							items:imglistjson,
+							initIndex:data.index,
+						});
+						pb.open();  //打开
+					}
+				},
+			});
+		});
+		
+		$('#chatcontent').on('blur',function(){
+			setTimeout(function(){
+				window.scrollTo(0, 0)
+			},100)
+		});
+		
+		$('#chatcontent').on('focus',function(){
+			//$("#chatcon").animate({scrollTop:10000000},300);
+			setTimeout(function() {
+				$('#chatcon').scrollTop(10000000);
+				$('body').scrollTop($('body')[0].scrollHeight);
+			}, 100);
+		});
+		
+		$(".quick").on("click",function(){
+			$(".fx-quick,.blackbg").removeClass("hide");
+		})
+		
+		$('.fx-quick .can').click(function(){
+			addchat($(this).text(),2);
+			$('.fx-quick,.blackbg').addClass("hide");
+		});
+
+        //点击发送按钮
+        $(".docomment").on("mousedown",function(){
+			addchat($("#chatcontent").val(),2);
+        });
+		
+    });	
+	
+	//发送消息到数据库
+	function addchat(content,type){
+		if(cansend == 1){
+			cansend = 0;
+			$.ajax({   
+				 url:"{php echo $this->createMobileUrl('addchatxcx')}",   
+				 type:'post', 
+				 data:{
+					content:content,
+					fkid:{$hasfanskefu['id']},
+					type:type
+				 },
+				 beforeSend:function(){
+					$(".loading").removeClass("hide");
+				 },
+				 dataType:'json',
+				 success:function(data){   
+					if(data.error == 0){
+						var returnmsg = data.content;									
+						returnmsg = '<div class="time text-c">'+data.datetime+'</div>'
+									+'<div class="right flex">'
+										+'<img src="{$hasfanskefu['kefuavatar']}" class="avatar" />'
+										+'<div class="con flex flex1">'
+											+'<div class="triangle-right"></div>'
+											+ returnmsg
+											+'<div class="flex1"></div>'
+										+'</div>'
+									+'</div>';
+						$('#chatcon').append(returnmsg).animate({scrollTop:10000000},300);
+						$('#chatcontent').val("");	
+					}else{
+						$.alert(data.msg);
+					}
+					cansend = 1;
+					$(".loading").addClass("hide");
+				 }
+			});
+		}
+	}
+	
+    function domInit(){
+		$("#chatcon").animate({scrollTop:10000000},300);
+    }
+	function KeyDown(event){
+		if (event.keyCode==13){
+			event.returnValue=false;
+			event.cancel = true;
+			addchat($("#chatcontent").val(),2);
+		}
+	}
+
+</script>
+<script type="text/javascript">
+$(function(){
+	$('.camera').click(function(){
+		wx.chooseImage({
+			count: 1, // 最多选3张
+			sizeType: ['compressed'], // 可以指定是原图还是压缩图，默认二者都有
+			sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+			success: function(res) {
+				var localIds = res.localIds; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
+				// 上传照片
+				wx.uploadImage({
+					localId: '' + localIds,
+					isShowProgressTips: 1,
+					success: function(res) {
+						serverId = res.serverId;
+						$.ajax({   
+							 url:"{php echo $this->createMobileUrl('getmedia')}",    
+							 type:'post', 
+							 data:{
+								media_id:serverId,
+							 },
+							 dataType:'json',
+							 success:function(data){   
+								if (data.error == 1) {
+									$.alert(data.message);
+								} else {
+									addchat(data.imgurl,3);
+								}   
+							 }
+						});
+					}
+				});
+			}
+		});
+	});
+})
+</script>
+<script type="text/javascript">
+wx.ready(function () {
+	wx.hideOptionMenu();
+});
+window.onpageshow = function(event){
+	if (event.persisted) {
+		window.location.reload();
+	}
+}
+</script>
+</html>

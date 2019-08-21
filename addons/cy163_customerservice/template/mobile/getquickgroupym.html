@@ -1,0 +1,140 @@
+<html style="background:#f5f5f5;">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1,user-scalable=no">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>{$cservicegroup['name']}</title>
+    <link rel="stylesheet" href="{MD_ROOT}static/iconfont/iconfont.css?v=20171228"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/css/weui.min.css"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/css/jquery-weui.min.css"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/newui/css/common.css?v=20171228"/>
+    <script>
+        var deviceWidth = document.documentElement.clientWidth;
+        document.documentElement.style.fontSize = deviceWidth / 7.5 + 'px';
+    </script>
+	{php echo register_jssdk(false);}
+	<style>
+	#header{max-width:7.5rem;padding:0 0.2rem;height:0.9rem;line-height:0.9rem;background:#E64340;color:#fff;}
+	#header .back{width:1rem;font-size:0.32rem;}
+	#header .back span{font-size:0.28rem;margin-left:0.05rem;}
+	#header .title{font-size:0.32rem;-webkit-box-flex:1;-webkit-flex:1;flex:1;}
+	#header .other{width:1rem;}
+	
+	.kefulist{background:#fff;}
+	.kefulist .item{padding:0.2rem;border-bottom:solid 1px #f1f1f1;}
+	.kefulist .item img{width:0.9rem;height:0.9rem;border-radius:100%;}
+	.kefulist .item .right{-webkit-box-flex:1;-webkit-flex:1;flex:1;margin-left:0.2rem;}
+	.kefulist .item .right .kefuname{-webkit-box-flex:1;-webkit-flex:1;flex:1;line-height:0.9rem;font-size:0.3rem;color:#666;}
+	.kefulist .item .right .fname{width:1.2rem;line-height:0.9rem;font-size:0.26rem;color:#999;}
+	.kefulist .item .right .iconfont{width:0.8rem;height:0.8rem;line-height:0.8rem;font-size:0.45rem;color:#E64340;margin-top:0.05rem;}
+	
+	.copyright{padding:0.2rem;font-size:0.28rem;color:#666;line-height:0.5rem;}
+	.copyright a{color:#E64340;}
+	
+	#footer{position:fixed;bottom:0;height:1rem;background:#fff;border-top;solid 1px #f1f1f1;}
+	#footer .item{-webkit-box-flex:1;-webkit-flex:1;flex:1;text-align:center;color:#666;position:relative;}
+	#footer .item a{color:#666;}
+	#footer .item .badge{position:absolute;right:30%;top:0.05rem;width:0.4rem;height:0.4rem;line-height:0.4rem;background:red;color:#fff;text-align:center;border-radius:100%;font-size:0.22rem;}
+	#footer .item .iconfont{font-size:0.45rem;}
+	#footer .now a{color:#E64340;}
+	
+	#header{background:{php echo $this->module["config"]['temcolor']};}
+	.kefulist .item .right .iconfont,.copyright a,#footer .now .iconfont, #footer .now .text{color:{php echo $this->module["config"]['temcolor']};}
+	</style>
+</head>
+
+<body style="padding-bottom:1.4rem;">
+<div id="header" class="flex">
+	{if $referer}
+	<div class="back iconfont" onclick="history.go(-1)">&#xe612;<span>返回</span></div>
+	{else}
+	<div class="iconfont back"></div>
+	{/if}
+	<div class="title text-c">{$cservicegroup['name']}</div>
+	<div class="other"></div>
+</div>
+
+<div class="main">
+	{if $cservicelist}
+		{loop $cservicelist $row}			
+			{if $row['ctype'] == 1}
+			<a href="{php echo $this->createMobileUrl('chat',array('toopenid'=>$row['content'],'goodsid'=>$goodsid,'qudao'=>$qudao))}">
+			{/if}
+			{if $row['ctype'] == 2}
+			<a href="http://wpa.qq.com/msgrd?v=3&uin={$row['content']}&site=qq&menu=yes">
+			{/if}
+			{if $row['ctype'] == 3}
+			<a href="tel:{$row['content']}">
+			{/if}
+			{if $row['ctype'] == 4}
+			<a href="tel:{$row['content']}">
+			{/if}
+			<div class="item">
+				<div class="img"><img src="{php echo tomedia($row['thumb'])}"></div>
+				<div class="text">
+					<div class="name textellipsis1">{$row['name']}</div>
+					<div class="zu">{$row['typename']}</div>
+				</div>
+				<div class="iconfont to">&#xe642;</div>
+			</div>
+			</a>
+		{/loop}
+	{else}
+		<div class="nodata text-c">
+			<div class="iconfont">&#xe67c;</div>
+			<div class="text">暂没有客服哦</div>
+		</div>
+	{/if}
+</div>
+
+<div class="copyright text-c">{php echo nl2br($this->module["config"]['copyright'])}</div>
+
+<div id="footer" class="flex">
+	<div class="item">
+		<a href="{php echo $this->createMobileUrl('mychat');}">
+			<div class="icon iconfont">&#xe66d;</div>
+			<div class="text">{if $this->module["config"]['footertext4']}{php echo $this->module["config"]['footertext4']}{else}消息管理{/if}</div>
+			{if $notread > 0}<div class="badge">{$notread}</div>{/if}
+		</a>
+	</div>
+</div>
+
+
+<script src="{MD_ROOT}/static/newui/js/jquery-3.1.1.min.js"></script>
+<script src="{MD_ROOT}/static/newui/js/jquery-weui.min.js"></script>
+<script type="text/javascript">
+$(function(){
+
+})
+</script>
+<script type="text/javascript">
+wx.ready(function () {
+	sharedata = {
+		title: '{$cservicegroup["name"]}',
+		desc: '{php echo $this->module["config"]["sharedes"]}',
+		link: '{php echo $this->module["config"]["shareurl"]}',
+		imgUrl: '{php echo tomedia($this->module["config"]["sharethumb"]);}',
+		trigger: function (res) {
+			//alert('用户点击发送给朋友');
+		},
+		success: function (res) {
+			//alert('已分享');
+		},
+		cancel: function (res) {
+			//alert('已取消');
+		},
+		fail: function (res) {
+			alert("分享失败");
+		}
+	};
+	wx.onMenuShareAppMessage(sharedata);
+	wx.onMenuShareTimeline(sharedata);
+	wx.onMenuShareQQ(sharedata);
+	wx.onMenuShareWeibo(sharedata);
+});
+</script>
+</body>
+</html>

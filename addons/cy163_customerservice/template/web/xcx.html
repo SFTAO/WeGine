@@ -1,0 +1,141 @@
+{template 'common/header'}
+{if $cando == 1}
+<ul class="nav nav-tabs">
+	<li {if $operation == 'display'} class="active" {/if}><a href="{php echo $this->createWebUrl('xcx',array('op' =>'display'))}">小程序管理</a></li>
+	<li{if empty($xcx['id']) && $operation == 'post'} class="active" {/if}><a href="{php echo $this->createWebUrl('xcx',array('op' =>'post'))}">添加小程序</a></li>
+	{if !empty($xcx['id']) &&  $operation == 'post'}<li  class="active"><a href="{php echo $this->createWebUrl('xcx',array('op' =>'post','id'=>$xcx['id']))}">编辑小程序</a></li>{/if}
+</ul>
+
+{if $operation == 'display'}
+<div class="main panel panel-default">
+	<div class="panel-body table-responsive">
+		<table class="table table-hover">
+			<thead class="navbar-inner">
+				<tr>
+					<th>小程序名称</th>
+					<th>原始ID</th>
+					<th>AppId</th>
+					<th width="15%">接入状态</th>
+					<th style="text-align:right;">操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				{loop $list $xcx}
+				<tr>
+					<td><span class="label label-primary">{$xcx['name']}</span></td>
+					<td>{$xcx['gh_id']}</td>
+					<td>{$xcx['appid']}</td>
+					<td>
+						{if $xcx['status'] == 1}<span class="label label-success">接入成功</span>{/if}
+						{if $xcx['status'] == 2}<span class="label label-danger">接入失败</span>{/if}
+					</td>
+					<td style="text-align:right;">
+						<button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#formModal{$xcx['id']}">消息推送</button>&nbsp;&nbsp;
+						<!--<a href="{php echo $this->createWebUrl('xcx', array('op' => 'auto', 'id' => $xcx['id']))}" class="btn btn-info btn-sm">自动回复配置</a>-->
+						<a href="{php echo $this->createWebUrl('xcx', array('op' => 'chongzhi', 'id' => $xcx['id']))}" class="btn btn-success btn-sm" onclick="return confirm('此操作不可恢复，确认删除？');return false;">重置access_token</a>
+						<a href="{php echo $this->createWebUrl('xcx', array('op' => 'post', 'id' => $xcx['id']))}" class="btn btn-default btn-sm" data-toggle="tooltip" data-placement="top" title="修改"><i class="fa fa-edit"></i></a>
+						<a href="{php echo $this->createWebUrl('xcx', array('op' => 'delete', 'id' => $xcx['id']))}"class="btn btn-default btn-sm" onclick="return confirm('此操作不可恢复，确认删除？');return false;" data-toggle="tooltip" data-placement="top" title="删除"><i class="fa fa-times"></i></a>
+					</td>
+				</tr>
+				{/loop}
+			</tbody>
+		</table>
+	</div>
+</div>
+
+{loop $list $row}
+<div class="modal fade" id="formModal{$row['id']}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+				<h4 class="modal-title">消息推送（请至小程序后台进行配置）</h4>
+			</div>
+			<div class="modal-body table-responsive">					
+				<div class="modal-body table-responsive">
+					<div class="panel panel-default">
+						<div class="panel-heading">URL(服务器地址)</div>
+						<div class="panel-body">{$row['url']}</div>
+					</div>
+					
+					<div class="panel panel-default">
+						<div class="panel-heading">Token(令牌)</div>
+						<div class="panel-body">{$row['token']}</div>
+					</div>
+					
+					<div class="panel panel-default">
+						<div class="panel-heading">EncodingAESKey(消息加密密钥)</div>
+						<div class="panel-body">{$row['aeskey']}</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{/loop}
+<script>
+	require(['bootstrap'],function($){
+		$('.btn').hover(function(){
+			$(this).tooltip('show');
+		},function(){
+			$(this).tooltip('hide');
+		});
+	});
+</script>
+{elseif $operation == 'post'}
+
+<div class="main">
+	<form action="" method="post" class="form-horizontal form" enctype="multipart/form-data" onsubmit='return formcheck()'>
+		<input type="hidden" name="id" value="{$xcx['id']}" />
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				小程序设置
+			</div>
+			<div class="panel-body">
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">小程序名称</label>
+					<div class="col-sm-9 col-xs-12">
+						<input type="text" name="name" class="form-control" value="{$xcx['name']}" />
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">原始ID</label>
+					<div class="col-sm-9 col-xs-12">
+						<input type="text" name="gh_id" class="form-control" value="{$xcx['gh_id']}" />
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">AppId</label>
+					<div class="col-sm-9 col-xs-12">
+						<input type="text" name="appid" class="form-control" value="{$xcx['appid']}" />
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">AppSecret</label>
+					<div class="col-sm-9 col-xs-12">
+						<input type="text" name="secret" class="form-control" value="{$xcx['secret']}" />
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">管理员openid</label>
+					<div class="col-sm-7 col-xs-12">
+						<input type="text" name="admins" class="form-control" value="{$xcx['admins']}" />
+						<div class="help-block" style="color:red;">*小程序管理员可在前端入口查看小程序下客服聊天记录。</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="form-group col-sm-12">
+			<input type="submit" name="submit" value="提交" class="btn btn-primary col-lg-1" />
+			<input type="hidden" name="token" value="{$_W['token']}" />
+		</div>
+	</form>
+</div>
+{/if}
+{else}
+	<div class="alert alert-danger">{php echo urldecode(BEST_TISHI)}</div>
+{/if}
+{template 'common/footer'}

@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1,user-scalable=no">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>{$group['groupname']}</title>
+    <link rel="stylesheet" href="{MD_ROOT}static/iconfont/iconfont.css?v=20171128"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/css/weui.min.css"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/css/jquery-weui.min.css"/>
+	<link rel="stylesheet" href="{NEWSTATIC_ROOT}/common.css?v=20190609"/>
+	<link rel="stylesheet" href="{MD_ROOT}/emoji/emoji.css"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/newui/css/swiper-3.3.1.min.css"/>
+    <script>
+        var deviceWidth = document.documentElement.clientWidth;
+        document.documentElement.style.fontSize = deviceWidth / 7.5 + 'px';
+    </script>
+	{php echo register_jssdk(false);}
+	<style>
+	body,html,#messibox{width:100%;height:100%;background:#f5f5f5;}
+	
+	#chatcon .right .con .concon{background:{php echo $this->module["config"]['temcolor']};}
+	#messifooter .docomment{background:{php echo $this->module["config"]['temcolor']};}
+	#chatcon .right .con .triangle-right{border-left:0.15rem solid {php echo $this->module["config"]['temcolor']};}
+	
+	.left,.right{position:relative;}
+	.groupnickname{color:#999;font-size:0.26rem;position:absolute;height:0.3rem;line-height:0.3rem;}
+	.n-left{margin-left:1.2rem;}
+	
+	
+	.groupmsg{font-size:0.24rem;background:{php echo $this->module["config"]['temcolor']};color:#fff;padding:0.05rem 0;width:100%;}
+	.weui-dialog__btn{color:{php echo $this->module["config"]['temcolor']};}
+	.weui-photo-browser-modal{z-index:99;}
+	
+	#chatcon{-webkit-tap-highlight-color:transparent;}
+	</style>
+</head>
+
+<body style="background-color:{php echo $this->module['config']['bgcolor']};">
+{if $_SERVER['HTTP_REFERER']}
+<div class="back2 iconfont" onclick="history.go(-1)">&#xe612;</div>
+{/if}
+<div id="messibox" class="flex">
+<div class="groupmsg text-c">群聊{if $this->module["config"]['ishowgroupnum'] == 1}（{$allpeople}人）{/if}创建时间：{php echo date("Y-m-d H:i:s",$group['time'])}</div>
+
+<div id="chatcon" class="messibox flex1">
+	{if $group['autoreply']}
+	<div class="left flex">
+		<img src="{php echo tomedia($group['thumb']);}" class="avatar" />
+		<div class="con flex flex1">
+			<div class="triangle-left" style="border-right:0.15rem solid #FFD100;"></div>
+			<div class="concon" style="max-width:5.5rem;background:#FFD100;">{php echo str_replace("\n","<br/>",$group['autoreply']);}</div>
+			<div class="flex1"></div>
+		</div>
+	</div>
+	{/if}
+		
+	{loop $groupcontent $row}
+		{if !empty($row['time'])}
+		<div class="time text-c">{php echo date('Y-m-d H:i:s',$row['time'])}</div>
+		{/if}
+
+		<div class="{$row['class']} flex">
+			<img src="{$row['avatar']}" class="avatar" />
+			{if $row['class'] == 'left'}
+				<div class="groupnickname n-left">{$row['nickname']}</div>
+				<div class="con flex flex1" style="margin-top:0.4rem;">
+			{else}
+				<div class="con flex flex1">
+			{/if}
+				<div class="triangle-{$row['class']}"></div>
+				{if $row['type'] == 3}
+				<div class="concon"><img src="{$row['content']}" class="sssbbb" /></div>
+				{elseif $row['type'] == 5}
+					<div class="concon voiceplay flex" data-con="{$row['content']}">
+						<i class="a-icon iconfont">&#xe601;</i>
+						{if $row['hasgroupvoicedu'] == 0 && $_W['fans']['from_user'] != $row['openid']}<span class="weidu">未读</span>{/if}
+						<div class="flex1"></div>
+					</div>
+				{else}
+					<div class="concon">{$row['content']}</div>
+				{/if}
+				<div class="flex1"></div>
+			</div>
+		</div>
+	{/loop}
+</div>
+
+<div id="messifooter" class="flex">
+	<img src="{NEWSTATIC_ROOT}/chat-quick.png" class="quick" />
+	<img src="{NEWSTATIC_ROOT}/chat-yuyin.png" class="audio" />
+	<img src="{NEWSTATIC_ROOT}/chat-wenzi.png" class="jianpan hide" />
+	<div class="input flex1">
+		<div class="flex1 flex">
+			<textarea id="chatcontent" class="flex1" wrap="virtual" onkeydown="KeyDown(event)" placeholder="请输入咨询内容..."></textarea>
+		</div>
+	</div>
+	<div class="saybutton hide flex1">按住  说话</div>
+	<img src="{NEWSTATIC_ROOT}/chat-face.png" class="qqface" />
+	<img src="{NEWSTATIC_ROOT}/chat-jia.png" class="jia" />
+	<div class="docomment">发送</div>
+</div>
+	
+<div class="showmore hide">
+	<div class="flex">
+		<div class="item">
+			<div class="itemwrap camera">
+				<div class="photo iconfont">&#xe647;</div>
+				<div class="text">上传图片</div>
+			</div>
+		</div>
+		<div class="item">
+			<div class="itemwrap">
+				<div class="tongzhi iconfont">&#xe685;</div>
+				<div class="text">消息通知</div>
+			</div>
+		</div>
+		<div class="item">
+			<div class="itemwrap">
+				<div class="tuichu iconfont">&#xe680;</div>
+				<div class="text">退出群聊</div>
+			</div>
+		</div>
+		<div class="flex1"></div>
+	</div>
+</div>
+
+<div class="faces hide">
+	<?php 
+		for($i=1;$i<=32;$i++){
+			echo '<img class="faceitem" src="../addons/cy163_customerservice/static/arclist/'.$i.'.png" data-emstr="[em_'.$i.']" />';
+		}
+	?>
+</div>
+</div>
+
+<div class="hide tongzhidiv meixialert">
+	<div class="title">消息通知</div>
+	
+	<div class="con-item pingtype {if $isin['txkaiguan'] == 1}con-item-now{/if}" data-val="1">开启</div>
+	<div class="con-item pingtype {if $isin['txkaiguan'] == 0}con-item-now{/if}" data-val="0">关闭</div>
+	<input type="hidden" id="txkaiguan" value="{$isin['txkaiguan']}" />
+	<div class="button-item flex">
+		<button type="button" id="pingjiabtn" class="subbtn">确定</button>
+	</div>
+</div>
+	
+<!--弹出正在录音区域-->
+<div class="fx-audio hide">
+	<i class="audio-start"></i>
+	<p></p>
+</div>
+
+<!--快捷消息-->
+<div class="fx-quick hide meixialert">
+	<div class="title">选择快捷消息</div>
+	<div class="alertcon">
+		{if empty($quickcon)}
+			<div class="noadata">暂无快捷消息</div>
+		{else}
+			{loop $quickcon $fansrow}
+				<div class="con-item can">{$fansrow}</div>
+			{/loop}
+		{/if}
+	</div>
+</div>
+
+<div class="blackbg hide"></div>
+<!--loading页开始-->
+<div class="loading hide">
+	<div class="loader">正在发送...</div>
+</div>
+<!--loading页结束-->
+</body>
+<script src="{MD_ROOT}/static/newui/js/socket.io.js"></script>
+<script src="{MD_ROOT}/static/newui/js/jquery-3.1.1.min.js"></script>
+<script src="{MD_ROOT}/static/newui/js/jquery-weui.min.js"></script>
+<script src="{MD_ROOT}/static/newui/js/swiper.min.js"></script>
+<script>	
+	var overscroll = function(el) {
+	  el.addEventListener('touchstart', function() {
+		var top = el.scrollTop,totalScroll = el.scrollHeight,currentScroll = top + el.offsetHeight;
+		if(top === 0) {
+		  el.scrollTop = 1;
+		} else if(currentScroll === totalScroll) {
+		  el.scrollTop = top - 1;
+		}
+		var left = el.scrollLeft,totalScroll2 = el.scrollWidth,currentScroll2 = left + el.offsetWidth;
+		if(left === 0) {
+		  el.scrollLeft = 1;
+		} else if(currentScroll2 === totalScroll2) {
+		  el.scrollLeft = left - 1;
+		}
+	  });
+	  el.addEventListener('touchmove', function(evt) {
+		if(el.offsetHeight < el.scrollHeight || el.offsetWidth < el.scrollWidth)
+		  evt._isScroller = true;
+	  },{passive:false});
+	};
+	
+	overscroll(document.querySelector('.messibox'));
+	overscroll(document.querySelector('.alertcon'));
+
+	document.body.addEventListener('touchmove', function(evt) {
+	  if(!evt._isScroller) {
+		evt.preventDefault();
+	  }
+	},{passive:false});
+	
+	var voicecon = '';
+	//滚动加载
+	var loading = false;  //状态标记
+	var count = 2;
+
+	var uid = "{$_W['fans']['from_user']}{$groupid}";
+	var allmember = "{$allmember}";
+	var sendurl = 'https://api.qiumipai.com:2121/?type=newgrouppublish';
+	var windowHeight = $(window).height();
+	var cansend = 1;
+    $(function(){
+		domInit();
+		// 连接服务端
+		var socket = io('https://api.qiumipai.com:2120');
+		// 连接后登录
+		socket.on('connect', function(){
+			socket.emit('login', uid);
+		});
+
+		// 后端推送来消息时
+		socket.on('new_msg', function(msg){			
+			var returnmsg = replace_em(msg.content);
+			returnmsg = '<div class="time text-c">'+msg.datetime+'</div>'
+						+'<div class="left flex">'
+							+'<img src="'+msg.avatar+'" class="avatar" />'
+							+'<div class="groupnickname n-left">'+msg.nickname+'</div>'
+							+'<div class="con flex flex1" style="margin-top:0.4rem;">'
+								+'<div class="triangle-left"></div>'
+								+returnmsg
+								+'<div class="flex1"></div>'
+							+'</div>'
+						+'</div>';
+			$('#chatcon').append(returnmsg).animate({scrollTop:100000},300);
+		});
+		
+		$('.tuichu').click(function(){
+			$.confirm("确定要退出吗？", function() {
+				$.ajax({
+					url:"{php echo $this->createMobileUrl('tuichuqun');}",   
+					type:'post', 
+					data:{
+						groupid:{$groupid},
+					},
+					dataType:'json',
+					success:function(data){
+						if (data.error == 1) {
+							$.alert(data.msg);
+						}else{
+							window.location = "{php echo $this->createMobileUrl('chosekefu')}";
+						}
+					}
+				});
+			}, function() {
+
+			});
+		});
+		
+		{if $total > 10}
+		$("#chatcon").scroll(function(){
+			if($("#chatcon").scrollTop() <= 0){
+				if(loading) return;
+				loading = true;
+				if(count < {$allpage}){
+					$.toast('数据加载中',function(){
+						$.ajax({
+							url:"{php echo $this->createMobileUrl('groupchatajax')}",
+							data:{
+								page:count,
+								isajax:1,
+								groupid:'{$groupid}',
+							},
+							dataType:'html',
+							type:'post',        
+							success:function(data){
+								if(data != ''){
+									data = replace_em(data);
+									$('#chatcon').prepend(data);
+									$("#chatcon").animate({scrollTop:0},300);
+									count++;
+								}
+								loading = false;
+							},
+						});
+					});
+				}
+			}
+		});
+		{/if}
+		
+		$("#chatcon").on("click",".sssbbb", function() {
+			$.ajax({
+				url:"{php echo $this->createMobileUrl('getgroupchatbigimg')}",
+				data:{
+					groupid:{$groupid},
+					con:$(this).attr("src"),
+				},
+				dataType:'json',
+				type:'post',        
+				success:function(data){
+					if(data.error == 0){
+						var imglistjson = data.message.split(",");
+						var pb = $.photoBrowser({
+							items:imglistjson,
+							initIndex:data.index,
+						});
+						pb.open();  //打开
+					}
+				},
+			});
+		});
+		
+		$(".faceitem").click(function(){
+			$("#chatcontent").val($("#chatcontent").val()+$(this).attr("data-emstr"));
+		});
+		
+		$('#chatcontent').on('blur',function(){
+			setTimeout(function(){
+				window.scrollTo(0, 0)
+			},100)
+		});
+		
+		$('#chatcontent').on('focus',function(){
+			//$("#chatcon").animate({scrollTop:10000000},300);
+			setTimeout(function() {
+				$('#chatcon').scrollTop(10000000);
+				$('body').scrollTop($('body')[0].scrollHeight);
+			}, 100);
+		});
+		
+		
+		$(".jia").click(function(){
+			$(".faces").addClass('hide');
+			$('.showmore').toggleClass('hide');
+		});
+		
+		$(".qqface").click(function(){
+			$(".showmore").addClass('hide');
+			$(".faces").toggleClass('hide');
+		});
+		
+		$(".quick").on("click",function(){
+			$(".fx-quick,.blackbg").removeClass("hide");
+		})
+		
+		$('.fx-quick .can').click(function(){
+			addchat($(this).text(),2);
+			$('.fx-quick,.blackbg').addClass("hide");
+		});
+	
+		$(".blackbg").on("click",function(){
+			$(".fx-quick,.tongzhidiv,.blackbg").addClass("hide");
+		})
+		
+		//点击发送按钮
+        $(".docomment").on("mousedown",function(){
+			addchat($("#chatcontent").val(),2);
+        });
+		
+		//录音按钮
+		$(".audio").on("click",function(){
+			$(".audio,.input").addClass("hide");
+			$(".jianpan,.saybutton").removeClass("hide");
+		});
+		
+		//键盘
+		$(".jianpan").on("click",function(){
+			$(".audio,.input").removeClass("hide");
+			$(".jianpan,.saybutton").addClass("hide");
+		});
+		
+		$('.tongzhi').click(function(){
+			$('.tongzhidiv,.blackbg').removeClass('hide');
+		});
+		$(".pingtype").click(function(){
+			$(".pingtype").removeClass('con-item-now');
+			$(this).addClass('con-item-now');
+			$("#txkaiguan").val($(this).attr('data-val'));
+		});
+
+		$("#pingjiabtn").click(function(){
+			$.ajax({   
+				 url:"{php echo $this->createMobileUrl('grouptongzhi')}",   
+				 type:'post', 
+				 data:{
+					id:{$isin['id']},
+					type:$("#txkaiguan").val(),
+				 },
+				 dataType:'json',
+				 success:function(data){   
+					if(data.error == 0){
+						$.alert(data.msg,function(){
+							$('.blackbg,.tongzhidiv').addClass('hide');
+						});
+					}else{
+						$.alert(data.msg,function(){
+							$('.blackbg,.tongzhidiv').addClass('hide');
+						});
+					}
+				 }
+			});
+		})
+		
+		//播放语音
+		$("#chatcon").on("click",".voiceplay", function() {
+			var serverid = $(this).attr('data-con');
+			voicecon = serverid;
+			wx.downloadVoice({
+				serverId: serverid,
+				success: function (res) {
+					wx.playVoice({
+						localId: res.localId, // 需要播放的音频的本地ID，由stopRecord接口获得
+					});
+				}
+			});
+		});
+    });
+	function voiceplayauto(content){
+		wx.downloadVoice({
+			serverId: content,
+			success: function (res) {
+				wx.playVoice({
+					localId: res.localId, // 需要播放的音频的本地ID，由stopRecord接口获得
+					success:function(){
+						voicecon = content;
+					}
+				});
+			}
+		});
+	}
+	//查看QQ表情结果
+	function replace_em(str){
+		str = str.replace(/\[em_([0-9]*)\]/g,'<img src="{MD_ROOT}/static/arclist/$1.png" style="width:0.4rem;height:0.4rem;margin-left:0.05rem;" border="0" />');
+		return str;
+	}
+    function domInit(){
+		$("#chatcon").animate({scrollTop:10000000},300);
+		$('.concon').each(function(){
+			$(this).html(replace_em($(this).html()));
+		});
+    }
+	function KeyDown(event){
+		if (event.keyCode==13){
+			event.returnValue=false;
+			event.cancel = true;
+			addchat($("#chatcontent").val(),2);
+		}
+	}
+	
+	//发送消息到数据库
+	function addchat(content,type){
+		if(cansend == 1){
+			cansend = 0;
+			$.ajax({   
+				 url:"{php echo $this->createMobileUrl('addgroupchat')}",   
+				 type:'post', 
+				 data:{
+					groupid:{$groupid},
+					content:content,
+					type:type,
+					token:"{$_W['token']}",
+					submit:1,
+				 },
+				 beforeSend:function(){
+					$(".loading").removeClass("hide");
+				 },
+				 dataType:'json',
+				 success:function(data){   
+					if(data.error == 0){
+						var returnmsg = replace_em(data.content);
+						returnmsg = '<div class="time text-c">'+data.datetime+'</div>'
+									+'<div class="right flex">'
+										+'<img src="'+data.avatar+'" class="avatar" />'
+										+'<div class="con flex flex1">'
+											+'<div class="triangle-right"></div>'
+											+ returnmsg
+											+'<div class="flex1"></div>'
+										+'</div>'
+									+'</div>';
+						$('#chatcon').append(returnmsg).animate({scrollTop:10000000},300);
+						$('#chatcontent').val("");						
+						$.ajax({   
+							url:sendurl,   
+							type:'post', 
+							data:{
+								content:content,
+								msgtype:type,
+								to:allmember,
+								avatar:"{$isin['avatar']}",
+								nickname:"{$isin['nickname']}",
+							},
+							dataType:'jsonp',
+							success:function(data){ 
+
+							}
+						});
+					}else{
+						$.alert(data.msg);
+					}
+					cansend = 1;
+					$(".loading").addClass("hide");
+				 }
+			});
+		}
+	}
+</script>
+<script type="text/javascript">
+var images = {
+	localIds: [],
+};
+var voice = {
+	localId: '',
+	serverId: ''
+};
+$(function(){
+	//按下录音假设全局变量已经在外部定义
+	$(".saybutton").on("touchstart",function(event){
+		wx.stopRecord();
+		event.preventDefault();
+		START = new Date().getTime();
+		$(".saybutton").text("松开  结束");
+		$(".fx-audio").removeClass('hide');
+		$(".fx-audio p").text('准备录音中...');
+		$(".audio-start").html('<span class="iconfont">&#xe643;</span>');
+		if(!localStorage.rainAllowRecord || localStorage.rainAllowRecord !== 'true'){
+			wx.startRecord({
+				success: function(){
+					localStorage.rainAllowRecord = 'true';
+					wx.stopRecord();
+				},
+				cancel: function () {
+					wx.stopRecord();
+					$.toast("您拒绝授权录音", "cancel");
+				}
+			});
+		}else{
+			recordTimer = setTimeout(function(){
+				wx.startRecord({
+					success: function(){
+						localStorage.rainAllowRecord = 'true';
+						$(".fx-audio p").text('正在录音中...');
+						lynum = 59;
+						lyname = setInterval(function() {
+							if(lynum <= 10 && lynum > 0){
+								$(".audio-start").html(lynum);// 你倒计时显示的地方元素
+							}
+							lynum--;
+							if(lynum == 0){          
+								clearInterval(lyname);
+								wx.stopRecord({
+									success: function (res) {
+										voice.localId = res.localId;
+										$('.fx-audio').addClass("hide");
+										uploadVoice();
+									},
+									fail: function (res) {
+										$.toast("停止录音异常", "forbidden");
+									}
+								});
+							}
+						}, 1000);
+					},
+					cancel: function () {
+						$.toast("您拒绝授权录音", "cancel");
+					}
+				});
+			},300);
+		}
+	});
+
+	//松手结束录音
+	$(".saybutton").on('touchend', function(event){
+		event.preventDefault();
+		END = new Date().getTime();
+		$(".saybutton").text('按住  说话');
+		$('.fx-audio').addClass("hide");
+		if((END - START) < 300){
+			END = 0;
+			START = 0;
+			clearTimeout(recordTimer);
+			$.toast("录音时间太短", "forbidden");
+		}else{
+			setTimeout(function(){
+				clearInterval(lyname);
+				wx.stopRecord({
+					success: function (res) {
+						voice.localId = res.localId;
+						uploadVoice();
+					},
+					fail: function (res) {
+						$.toast("停止录音异常", "forbidden");
+					}
+				});
+			},300);
+		}
+	});
+	//上传录音
+	function uploadVoice(){
+		//调用微信的上传录音接口把本地录音先上传到微信的服务器
+		//不过，微信只保留3天，而我们需要长期保存，我们需要把资源从微信服务器下载到自己的服务器
+		wx.uploadVoice({
+			localId: voice.localId, // 需要上传的音频的本地ID，由stopRecord接口获得
+			isShowProgressTips: 1, // 默认为1，显示进度提示
+			success: function (res) {
+				//把录音在微信服务器上的id（res.serverId）发送到自己的服务器供下载。
+				addchat(res.serverId,5);
+			}
+		});
+	}
+	$('.camera').click(function(){
+		wx.chooseImage({
+			count: 3, // 最多选3张
+			sizeType: ['compressed'], // 可以指定是原图还是压缩图，默认二者都有
+			sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+			success: function(res) {
+				images.localIds = res.localIds; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
+				var i = 0; var length = images.localIds.length;
+				var upload = function() {
+					wx.uploadImage({
+						localId:'' + images.localIds[i],
+						isShowProgressTips: 1,
+						success: function(res) {
+							var serverId = res.serverId;
+							$.ajax({   
+								 url:"{php echo $this->createMobileUrl('getmedia')}",   
+								 type:'post', 
+								 data:{
+									media_id:serverId,
+								 },
+								 dataType:'json',
+								 success:function(data){   
+									if (data.error == 1) {
+										$.alert(data.message);
+									} else {
+										addchat(data.imgurl,3);
+									}  
+								 }
+							});
+							//如果还有照片，继续上传
+							i++;
+							if (i < length) {
+								upload();
+							}
+						}
+					});                    
+				};
+				upload();
+			}
+		});
+	});
+})
+</script>
+<script type="text/javascript">
+wx.ready(function () {
+	wx.hideOptionMenu();
+	//注册微信播放录音结束事件【一定要放在wx.ready函数内】
+	wx.onVoicePlayEnd({
+		success: function (res) {
+			$.ajax({
+				url:"{php echo $this->createMobileUrl('dugroupvoice');}",   
+				type:'post', 
+				data:{
+					groupid:{$groupid},
+					gchatcon:voicecon,
+				},
+				dataType:'json',
+				success:function(data){
+					if(data.content != ""){
+						$(".voiceplay").each(function(){
+							var that = $(this);
+							if(that.attr('data-con') == voicecon){
+								if(data.error == 0){
+									if(that.children('.weidu').length > 0){
+										that.children('.weidu').remove();
+									}
+									voiceplayauto(data.content);
+								}
+							}
+						});
+					}else{
+						if(data.error == 0){
+							if($(".voiceplay:last").children('.weidu').length > 0){
+								$(".voiceplay:last").children('.weidu').remove();
+							}
+						}
+					}
+				}
+			});
+		}
+	});
+	wx.onVoiceRecordEnd({
+		complete: function (res) {
+			voice.localId = res.localId;
+			$.alert('录音时间已超过一分钟');
+		}
+	});
+});
+</script>
+</html>

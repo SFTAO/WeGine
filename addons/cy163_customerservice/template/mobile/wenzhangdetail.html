@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1,user-scalable=no">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>{$wenzhang['title']}</title>	
+	<link rel="stylesheet" href="{NEWSTATIC_ROOT}/jqueryweui/css/weui.min.css"/>
+	<link rel="stylesheet" href="{NEWSTATIC_ROOT}/jqueryweui/css/jquery-weui.min.css"/>
+	<link rel="stylesheet" href="{NEWSTATIC_ROOT}/common.css"/>
+    <script>
+        var deviceWidth = document.documentElement.clientWidth;
+        document.documentElement.style.fontSize = deviceWidth / 7.5 + 'px';
+    </script>
+	<style>
+	.detailtab{background:#fff;border-top:1px solid #f1f1f1;padding: 0 0.2rem;}
+	.detailtab .tab-title{height:0.8rem;line-height:0.8rem;font-size: 0.3rem;color: #666;border-bottom:1px solid #f1f1f1;} 
+	.detailtab .detail{margin-top: 0.2rem;font-size:0.3rem;}
+	.detailtab .detail img{max-width:100%;margin:0 auto;}
+	.detailtab .detail table{max-width:100%;margin:0 auto;}
+	.detailtab .detail table,.detailtab .detail p,.detailtab .detail section{max-width:100%;}
+	</style>
+</head>
+
+<body ontouchstart>
+
+<div class="detailtab">
+  <div class="tab-title">{$wenzhang['title']}</div>
+	<div class="detail">{$wenzhang['des']}</div>
+</div>
+
+<script type="text/javascript" src="{NEWSTATIC_ROOT}/jqueryweui/js/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="{NEWSTATIC_ROOT}/jqueryweui/js/fastclick.js"></script>
+<script type="text/javascript" src="{NEWSTATIC_ROOT}/jqueryweui/js/jquery-weui.min.js"></script>
+<script>
+$(function() {
+	FastClick.attach(document.body);
+	$(".detail img").css({ "height": "auto", "width": "auto" });
+	$(".detail p").css({ "height": "auto", "width": "auto" });
+	$(".detail table").css({ "height": "auto", "width": "auto" });
+	$(".detail section").css({ "height": "auto", "width": "auto" });
+});
+</script>
+</body>
+</html>

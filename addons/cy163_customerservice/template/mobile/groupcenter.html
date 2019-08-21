@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html style="background:#f5f5f5;">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1,user-scalable=no">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>{if $this->module["config"]['footertext2']}{php echo $this->module["config"]['footertext2']}{else}群聊中心{/if}</title>
+	<link rel="stylesheet" href="{NEWSTATIC_ROOT}/jqueryweui/css/weui.min.css"/>
+	<link rel="stylesheet" href="{NEWSTATIC_ROOT}/jqueryweui/css/jquery-weui.min.css"/>
+	<link rel="stylesheet" href="{NEWSTATIC_ROOT}/common.css?v=20190507"/>
+    <script>
+        var deviceWidth = document.documentElement.clientWidth;
+        document.documentElement.style.fontSize = deviceWidth / 7.5 + 'px';
+    </script>
+	{php echo register_jssdk(false);}
+	<style>	
+	.search{background:#f5f5f5;padding:0.3rem 0.2rem;height:1.2rem;border-bottom:solid 1px #f1f1f1;}
+	.search input{display:block;-webkit-box-flex:1;-webkit-flex:1;flex:1;height:0.4rem;line-height:0.4rem;font-size:0.26rem;color:#666;padding:0.1rem 0;text-indent:5px;width:100%;border:solid 1px #f1f1f1;border-radius:0.1rem;margin-right:0.2rem;-webkit-appearance: none;}
+	.search button{display:block;width:1.2rem;height:0.6rem;line-height:0.6rem;text-align:center;background:#E64340;color:#fff;font-size:0.26rem;border:none;border-radius:0.1rem;}
+	
+	.qunliaolist .item{padding:0.2rem;border-bottom:solid 1px #f1f1f1;background:#fff;}
+	.qunliaolist .item .itema{color:#666;}
+	.qunliaolist .item img{width:0.8rem;height:0.8rem;border-radius:100%;}
+	.qunliaolist .item .text{margin-left:0.2rem;font-size:0.3rem;line-height:0.8rem;}
+	.qunliaolist .item .glqun{
+		width:1.2rem;font-size:0.24rem;
+		text-align:center;border-radius:0.05rem;
+		background:#E64340;color:#fff;
+		height:0.5rem;line-height:0.5rem;margin-top:0.15rem;
+	}
+	.qunliaolist .item .jtyou{width:0.4rem;height:0.4rem;margin-top:0.2rem;margin-left:0.1rem;}
+	
+	.copyright a, #footer .now .text{color:{php echo $this->module["config"]['temcolor']};}
+	
+	.search button{background:{php echo $this->module["config"]['temcolor']};}
+	.qunliaolist .item .glqun{background:{php echo $this->module["config"]['temcolor']};}
+	
+	.iscservice{position:fixed;right:0.2rem;bottom:1.4rem;z-index:99;display:block;width:0.8rem;height:0.8rem;}
+	.iscservice img{width:0.8rem;height:0.8rem;}
+	</style>
+</head>
+
+<body style="background:#f5f5f5;padding-bottom:1rem;">
+
+<div class="search">
+	<form action="{php echo $this->createMobileUrl('groupcenter',array('op'=>'search'))}" method="post" id="form" class="flex">
+		<input type="text" placeholder="输入群名称搜索" name="qunname" value="" />
+		<button type="submit">搜索</button>
+	</form>
+</div>
+<div class="qunliaolist">
+	{if !empty($grouplist)}
+		{loop $grouplist $row}
+			<div class="item flex">
+				<img src="{php echo tomedia($row['thumb']);}">
+				<a href="{php echo $this->createMobileUrl('groupchatdetail',array('groupid'=>$row['id']))}" class="flex1 itema">
+					<div class="text flex1 textellipsis1">{$row['groupname']}</div>
+				</a>
+				{if $row['admin'] == $_W['fans']['from_user']}
+					<a href="{php echo $this->createMobileUrl('guanligroup',array('groupid'=>$row['id']))}" class="glqun">管理群</a>
+				{else}
+					<img src="{NEWSTATIC_ROOT}/jt-you.png" class="jtyou" />
+				{/if}
+			</div>
+		{/loop}
+	{else}
+		<div class="nodata text-c">
+			<img src="{NEWSTATIC_ROOT}/nodata.png" />
+			<div class="text">暂没有群聊哦</div>
+		</div>
+	{/if}
+</div>
+
+<div class="copyright text-c">{php echo nl2br($this->module["config"]['copyright'])}</div>
+
+{if $iscservice}
+<a href="{php echo $this->createMobileUrl('kefucenter');}" class="iscservice">
+	<img src="{NEWSTATIC_ROOT}/footer3.png" />
+</a>
+{/if}
+
+
+<div id="footer" class="flex">
+	<div class="item">
+		<a href="{php echo $this->createMobileUrl('chosekefu');}">
+			{if $this->module['config']['footer1thumb']}
+			<img src="{php echo tomedia($this->module['config']['footer1thumb'])}" />
+			{else}
+			<img src="{NEWSTATIC_ROOT}/footer1.png" />
+			{/if}
+			<div class="text">{if $this->module["config"]['footertext1']}{php echo $this->module["config"]['footertext1']}{else}客服{/if}</div>
+		</a>
+	</div>
+	{if $this->module["config"]['isgroupon'] == 1}
+	<div class="item now">
+		<a href="{php echo $this->createMobileUrl('groupcenter');}">
+			{if $this->module['config']['footer2thumb']}
+			<img src="{php echo tomedia($this->module['config']['footer2thumb'])}" />
+			{else}
+			<img src="{NEWSTATIC_ROOT}/footer2.png" />
+			{/if}
+			<div class="text">{if $this->module["config"]['footertext2']}{php echo $this->module["config"]['footertext2']}{else}群聊{/if}</div>
+		</a>
+	</div>
+	{/if}
+	{if $this->module['config']['footer4on'] == 1}
+		<div class="item">
+			<a href="{php echo $this->module['config']['footer4url'];}">
+				<img src="{php echo tomedia($this->module['config']['footer4thumb']);}" />
+				<div class="text">{php echo $this->module['config']['footertext3'];}</div>
+			</a>
+		</div>
+	{/if}
+	{if $this->module['config']['footer5on'] == 1}
+		<div class="item">
+			<a href="{php echo $this->module['config']['footer5url'];}">
+				<img src="{php echo tomedia($this->module['config']['footer5thumb']);}" />
+				<div class="text">{php echo $this->module['config']['footertext4'];}</div>
+			</a>
+		</div>
+	{/if}
+</div>
+
+<script src="{NEWSTATIC_ROOT}/jqueryweui/js/jquery-3.1.1.min.js"></script>
+<script src="{NEWSTATIC_ROOT}/jqueryweui/js/jquery-weui.min.js"></script>
+<script src="{NEWSTATIC_ROOT}/jqueryweui/js/jquery.form.js"></script>
+<script src="{NEWSTATIC_ROOT}/jqueryweui/js/fastclick.js"></script>
+<script type="text/javascript">
+$("#form").ajaxForm({
+	type: "POST",
+	dataType:"json",
+	success: function(data) {
+		if(data.error == 1){
+			$.alert(data.msg);
+		}else{
+			$('.qunliaolist').html(data.html);
+		}
+	},
+});
+$(function(){
+	FastClick.attach(document.body);
+})
+</script>
+<script type="text/javascript">
+wx.ready(function () {
+	sharedata = {
+		title: '{php echo $this->module["config"]["sharetitle"]}',
+		desc: '{php echo $this->module["config"]["sharedes"]}',
+		link: '{php echo $this->module["config"]["shareurl"]}',
+		imgUrl: '{php echo tomedia($this->module["config"]["sharethumb"]);}',
+		trigger: function (res) {
+			//alert('用户点击发送给朋友');
+		},
+		success: function (res) {
+			//alert('已分享');
+		},
+		cancel: function (res) {
+			//alert('已取消');
+		},
+		fail: function (res) {
+			$.alert("分享失败");
+		}
+	};
+	wx.onMenuShareAppMessage(sharedata);
+	wx.onMenuShareTimeline(sharedata);
+	wx.onMenuShareQQ(sharedata);
+	wx.onMenuShareWeibo(sharedata);
+});
+</script>
+</body>
+</html>

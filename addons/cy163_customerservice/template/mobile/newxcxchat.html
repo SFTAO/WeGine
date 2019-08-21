@@ -1,0 +1,33 @@
+<script src="{MD_ROOT}static/js/jquery-3.1.1.min.js"></script>
+<script src="{MD_ROOT}/static/newui/js/socket.io.js"></script>
+<script>
+	var uid = "{$has['fansopenid']}";
+	var touid = "{$has['kefuopenid']}";
+	var fkid = "{$has['id']}";
+	var sendurl = "https://api.qiumipai.com:2121/?type=xcxpublish&to="+touid;
+    $(function(){
+		// 连接服务端
+		var socket = io('https://api.qiumipai.com:2120');
+		// 连接后登录
+		socket.on('connect', function(){
+			socket.emit('login',{'uid':uid,'fkid':fkid});
+		});
+		addchat();
+    });
+	
+	//发送消息到数据库
+	function addchat(){
+		$.ajax({   
+			url:sendurl,   
+			type:'get', 
+			data:{
+				content:"{$data['content']}",
+				msgtype:"{$data['msgtype']}",
+				toopenid:uid,
+			},
+			dataType:'jsonp',
+			success:function(data){ 
+			}
+		});
+	}
+</script>

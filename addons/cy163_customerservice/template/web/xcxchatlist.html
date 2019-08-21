@@ -1,0 +1,142 @@
+{template 'common/header'}
+<ul class="nav nav-tabs">
+	<li><a href="{php echo $this->createWebUrl('xcxcservice',array('op' =>'display'))}">小程序客服</a></li>
+	<li><a href="{php echo $this->createWebUrl('xcxcservice',array('op' =>'post'))}">添加小程序客服</a></li>
+	<li class="active"><a href="{php echo $this->createWebUrl('xcxcservice', array('op' => 'msg','id'=>$id))}">聊天管理</a></li>
+</ul>
+
+<div class="main">	
+	<div class="panel panel-default">
+		<div class="panel-heading">[{$cservice['name']}]的聊天记录</div>
+		<div class="panel-body table-responsive">
+			<table class="table table-hover table-striped table-condensed">
+				<thead>
+					<tr>
+						<th style="width:25%;">客户</th>
+						<th style="width:35%;">最新消息</th>
+						<th style="text-align:right;">操作</th>
+					</tr>
+				</thead>
+				<tbody>
+				{loop $fanslist $row}
+				<tr>
+					<td>
+						<div>
+							{if $row['fansavatar']}
+								<img src="{$row['fansavatar']}" width="50" height="50" style="border-radius:50px;" />
+							{else}
+								<img src="{MD_ROOT}static/xcx.png" width="50" height="50" style="border-radius:50px;" />
+							{/if}
+						</div>
+						<div style="margin-top:5px;"><span class="label label-default">{$row['fansnickname']}</span></div>
+					</td>
+					<td>
+						<div>
+							{if $row['msgtype'] == 'image'}
+								[图片消息]
+							{elseif $row['msgtype'] == 'image'}
+								[图文消息]
+							{else}
+								{$row['lastcon']}
+							{/if}
+						</div>
+						<div style="margin-top:5px;"><span class="label label-default">{php echo date("Y-m-d H:i:s",$row['lasttime'])}</span></div>
+					</td>
+					<td style="text-align:right;">
+						<button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#formModal{$row['id']}">聊天记录</button>&nbsp;&nbsp;
+					</td>
+				</tr>
+				{/loop}
+				</tbody>
+			</table>
+			
+			{loop $fanslist $row}
+				<div class="modal fade" id="formModal{$row['id']}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-lg">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+								<h4 class="modal-title">聊天记录</h4>
+							</div>
+							<div class="modal-body table-responsive" style="max-height:400px;overflow-y:scroll;">					
+								<table class="table table-hover table-striped table-condensed">
+									<thead>
+										<tr>
+											<th style="width:15%;">昵称</th>
+											<th>聊天内容</th>
+											<th style="width:15%;">时间</th>
+										</tr>
+									</thead>
+									<tbody>
+										{loop $row['chat'] $rowchat}
+											<tr class="trre{$rowchat['id']}">
+												<td>
+													{if $rowchat['openid'] == $row['fansopenid']}
+														<span class="label label-success">{$row['fansnickname']}</span>
+													{else}
+														<span class="label label-info">{$row['kefunickname']}</span>
+													{/if}
+												</td>
+												<td style="overflow:auto;text-overflow:initial;white-space:inherit;">
+													{if $rowchat['openid'] == $rowrow['fansopenid']}
+														{if $rowchat['msgtype'] == 'image'}
+															<img src="{$rowchat['content']}" onclick="showimage('{$rowchat['content']}');" style="max-width:100px;cursor:pointer;" />
+														{else}
+															{if $rowchat['msgtype'] == 'link'}
+																[图文]
+															{else}
+																{$rowchat['content']}
+															{/if}
+														{/if}
+													{else}
+														{if $rowchat['msgtype'] == 'image'}
+															<img src="{$rowchat['content']}" onclick="showimage('{$rowchat['content']}');" style="max-width:100px;cursor:pointer;" />
+														{else}
+															{if $rowchat['msgtype'] == 'link'}
+																[图文]
+															{else}
+																{$rowchat['content']}
+															{/if}
+														{/if}
+													{/if}
+												</td>
+												<td>
+													<span class="label label-info">{php echo date("Y-m-d H:i:s",$rowchat['time'])}</span>
+												</td>
+											</tr>
+										{/loop}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			{/loop}
+		</div>
+	</div>
+	{$pager}
+</div>
+
+<div id="ShowImage_Form" tabindex="-2" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">     <div class="modal-dialog modal-lg">
+	<div class="modal-content">    
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+			<h4 class="modal-title">图片信息</h4>
+		</div>
+		<div class="modal-body">
+			<div id="img_show"></div>
+		</div>
+	</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+
+})
+function showimage(source)
+ {
+	 $("#ShowImage_Form").find("#img_show").html("<image src='"+source+"' class='carousel-inner img-responsive img-rounded' />");
+	 $("#ShowImage_Form").modal();
+ }
+</script>
+{template 'common/footer'}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>常见问题</title>
+	<link rel="stylesheet" href="{NEWSTATIC_ROOT}/jqueryweui/css/weui.min.css"/>
+	<link rel="stylesheet" href="{NEWSTATIC_ROOT}/jqueryweui/css/jquery-weui.min.css"/>
+	<link rel="stylesheet" href="{NEWSTATIC_ROOT}/common.css"/>
+	<script>
+        var deviceWidth = document.documentElement.clientWidth;
+        document.documentElement.style.fontSize = deviceWidth / 7.5 + 'px';
+    </script>
+	{php echo register_jssdk(false);}
+	<style>
+	body{
+	  background: #f5f5f5;
+	}
+
+	.list{line-height:0.3rem;border-top:solid 1px #F5F5F5;padding:0.3rem;background: #fff;}
+	.list .text{flex:1;color:#292929;font-size:0.3rem;}
+	.list .rightimg{width:0.3rem;height:0.3rem;}
+	</style>
+</head>
+
+<body ontouchstart>
+{loop $helplist $row}
+<a class="list flex" href="{php echo $this->createMobileUrl('wenzhangdetail',array('id'=>$row['id']))}">
+  <div class="text">{$row['title']}</div>
+  <img src="{NEWSTATIC_ROOT}/jt-you.png" class="rightimg" />
+</a>
+{/loop}
+<script type="text/javascript" src="{NEWSTATIC_ROOT}/jqueryweui/js/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="{NEWSTATIC_ROOT}/jqueryweui/js/fastclick.js"></script>
+<script type="text/javascript" src="{NEWSTATIC_ROOT}/jqueryweui/js/jquery-weui.min.js"></script>
+<script>
+$(function(){
+	FastClick.attach(document.body);
+});
+</script>
+</body>
+</html>

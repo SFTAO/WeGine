@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html style="background:#f5f5f5;">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1,user-scalable=no">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>{php echo $this->module["config"]['title']}</title>
+	<link rel="stylesheet" href="{NEWSTATIC_ROOT}/jqueryweui/css/weui.min.css"/>
+	<link rel="stylesheet" href="{NEWSTATIC_ROOT}/jqueryweui/css/jquery-weui.min.css"/>
+	<link rel="stylesheet" href="{NEWSTATIC_ROOT}/common.css?v=20190507"/>
+    <script>
+        var deviceWidth = document.documentElement.clientWidth;
+        document.documentElement.style.fontSize = deviceWidth / 7.5 + 'px';
+    </script>
+	{php echo register_jssdk(false);}
+	<style>	
+	.kefulist .item{padding:0.2rem;border-bottom:solid 1px #f1f1f1;background:#fff;}
+	.kefulist .item img{width:0.8rem;height:0.8rem;border-radius:100%;}
+	.kefulist .item .right{
+		margin-left:0.2rem;
+	}
+	.kefulist .item .right .kefuname{
+		line-height:0.8rem;
+		font-size:0.3rem;
+		color:#333;
+	}
+	.kefulist .item .right .fname{line-height:0.8rem;font-size:0.26rem;color:#999;}
+	.kefulist .item .right .jtyou{width:0.4rem;height:0.4rem;margin-top:0.2rem;margin-left:0.1rem;}
+	
+	.iscservice{position:fixed;right:0.2rem;bottom:1.4rem;z-index:99;display:block;width:0.8rem;height:0.8rem;}
+	.iscservice img{width:0.8rem;height:0.8rem;}
+
+	.copyright a, #footer .now .text{color:{php echo $this->module["config"]['temcolor']};}
+	.swiper-container-horizontal>.swiper-pagination-bullets, .swiper-pagination-custom, .swiper-pagination-fraction{height:0.6rem;line-height:0.3rem;}
+	.swiper-pagination-bullet-active{color:{php echo $this->module["config"]['temcolor']};background:{php echo $this->module["config"]['temcolor']};}
+	
+	.weui-dialog__btn{color:{php echo $this->module["config"]['temcolor']};}
+	
+	.search{padding:0.2rem;}
+	.search input{flex:1;background:#fff;border:none;border-radius:0.1rem;padding:0.05rem 0.1rem;font-size:0.28rem;color:#999;height:0.5rem;line-height:0.4rem;}
+	.search button{width:1.4rem;text-align:center;color:#fff;font-size:0.28rem;background:{php echo $this->module["config"]['temcolor']};border:none;margin-left:0.2rem;border-radius:0.1rem;}
+	</style>
+</head>
+
+<body style="background:#f5f5f5;padding-bottom:1rem;">
+
+{if !empty($advlist)}
+<!-- Swiper -->
+<div class="swiper-container banner" data-space-between='0' data-pagination='.bannerpagination' data-autoplay="1000" style="width:100%;">
+	<div class="swiper-wrapper text-c">
+		{loop $advlist $arow}
+		<div class="swiper-slide">
+			<a href="{$arow['link']}"><img src="{php echo tomedia($arow['thumb']);}" /></a>
+		</div>
+		{/loop}
+	</div>
+	<div class="swiper-pagination"></div>
+</div>
+{/if}
+
+
+<form action="{php echo $this->createMobileUrl('searchkefus')}" id="searchform">
+	<div class="search flex">
+		<input type="text" name="keyword" placeholder="输入关键词搜索" />
+		<button type="submit">搜索</button>
+	</div>
+</form>
+
+
+<div class="kefulist">
+	{if $cservicelist || $cservicegrouplist}
+		{loop $cservicegrouplist $row}
+		<a href="{php echo $this->createMobileUrl('groupchat',array('id'=>$row['id'],'qudao'=>$_GPC['qudao'],'goodsid'=>$_GPC['goodsid'],'merchid'=>$_GPC['merchid']))}">
+		<div class="item flex">
+			<img src="{php echo tomedia($row['thumb'])}">
+			<div class="right flex flex1">
+				<div class="kefuname textellipsis1 flex1">{$row['name']}</div>
+				<div class="fname text-r">{$row['typename']}</div>
+				<img src="{NEWSTATIC_ROOT}/jt-you.png" class="jtyou" />
+			</div>
+		</div>
+		</a>
+		{/loop}
+		{loop $cservicelist $row}
+			{if $row['ctype'] == 1}
+			<a href="{php echo $this->createMobileUrl('chat',array('toopenid'=>$row['content'],'qudao'=>$_GPC['qudao'],'goodsid'=>$_GPC['goodsid'],'merchid'=>$_GPC['merchid']))}">
+			{/if}
+			{if $row['ctype'] == 2}
+			<a href="http://wpa.qq.com/msgrd?v=3&uin={$row['content']}&site=qq&menu=yes">
+			{/if}
+			{if $row['ctype'] == 3}
+			<a href="tel:{$row['content']}">
+			{/if}
+			{if $row['ctype'] == 4}
+			<a href="tel:{$row['content']}">
+			{/if}
+			<div class="item flex">
+				<img src="{php echo tomedia($row['thumb'])}">
+				<div class="right flex flex1">
+					<div class="kefuname textellipsis1 flex1">{$row['name']}</div>
+					<div class="fname text-r">{$row['typename']}</div>
+					<img src="{NEWSTATIC_ROOT}/jt-you.png" class="jtyou" />
+				</div>
+			</div>
+			</a>
+		{/loop}
+	{else}
+		<div class="nodata text-c">
+			<img src="{NEWSTATIC_ROOT}/nodata.png" />
+			<div class="text">暂没有客服哦</div>
+		</div>
+	{/if}
+</div>
+
+<div class="copyright text-c">{php echo nl2br($this->module["config"]['copyright'])}</div>
+
+{if $iscservice}
+<a href="{php echo $this->createMobileUrl('kefucenter');}" class="iscservice">
+	<img src="{NEWSTATIC_ROOT}/footer3.png" />
+</a>
+{/if}
+
+<div id="footer" class="flex">
+	<div class="item now">
+		<a href="{php echo $this->createMobileUrl('chosekefu');}">
+			{if $this->module['config']['footer1thumb']}
+			<img src="{php echo tomedia($this->module['config']['footer1thumb'])}" />
+			{else}
+			<img src="{NEWSTATIC_ROOT}/footer1.png" />
+			{/if}
+			<div class="text">{if $this->module['config']['footertext1']}{php echo $this->module['config']['footertext1']}{else}客服{/if}</div>
+		</a>
+	</div>
+	{if $this->module['config']['isgroupon'] == 1}
+	<div class="item">
+		<a href="{php echo $this->createMobileUrl('groupcenter');}">
+			{if $this->module['config']['footer2thumb']}
+			<img src="{php echo tomedia($this->module['config']['footer2thumb'])}" />
+			{else}
+			<img src="{NEWSTATIC_ROOT}/footer2.png" />
+			{/if}
+			<div class="text">{if $this->module['config']['footertext2']}{php echo $this->module['config']['footertext2']}{else}群聊{/if}</div>
+		</a>
+	</div>
+	{/if}
+	{if $this->module['config']['footer4on'] == 1}
+		<div class="item">
+			<a href="{php echo $this->module['config']['footer4url'];}">
+				<img src="{php echo tomedia($this->module['config']['footer4thumb']);}" />
+				<div class="text">{php echo $this->module['config']['footertext3'];}</div>
+			</a>
+		</div>
+	{/if}
+	{if $this->module['config']['footer5on'] == 1}
+		<div class="item">
+			<a href="{php echo $this->module['config']['footer5url'];}">
+				<img src="{php echo tomedia($this->module['config']['footer5thumb']);}" />
+				<div class="text">{php echo $this->module['config']['footertext4'];}</div>
+			</a>
+		</div>
+	{/if}
+</div>
+<script src="{NEWSTATIC_ROOT}/jqueryweui/js/jquery-3.1.1.min.js"></script>
+<script src="{NEWSTATIC_ROOT}/jqueryweui/js/jquery-weui.min.js"></script>
+<script src="{NEWSTATIC_ROOT}/jqueryweui/js/swiper.min.js"></script>
+<script src="{NEWSTATIC_ROOT}/jqueryweui/js/jquery.form.js"></script>
+<script src="{NEWSTATIC_ROOT}/jqueryweui/js/fastclick.js"></script>
+<script type="text/javascript">
+var issubmit2 = false;  //状态标记
+$("#searchform").ajaxForm({
+	beforeSubmit:function(){
+		if(issubmit2){
+			$.alert("请不要重复提交");
+			return false;
+		}else{
+			issubmit2 = true;
+		}
+	},
+	type: "POST",
+	dataType:"json",
+	success: function(data) {
+		if(data.error == 1){
+			$.alert(data.message);
+		}else{
+			if(data.html != ""){
+				$(".kefulist").html(data.html);
+			}else{
+				$.alert("没有搜索到客服！");
+			}
+		}
+		issubmit2 = false;
+	},
+});
+$(function(){
+	FastClick.attach(document.body);
+	
+	$(".banner").swiper({
+		loop: true,
+		paginationType:'bullets',
+		autoplay:3000,
+	});
+})
+wx.ready(function () {
+	sharedata = {
+		title: '{php echo $this->module["config"]["sharetitle"]}',
+		desc: '{php echo $this->module["config"]["sharedes"]}',
+		link: '{php echo $this->module["config"]["shareurl"]}',
+		imgUrl: '{php echo tomedia($this->module["config"]["sharethumb"]);}',
+		trigger: function (res) {
+			//alert('用户点击发送给朋友');
+		},
+		success: function (res) {
+			//alert('已分享');
+		},
+		cancel: function (res) {
+			//alert('已取消');
+		},
+		fail: function (res) {
+			alert("分享失败");
+		}
+	};
+	wx.onMenuShareAppMessage(sharedata);
+	wx.onMenuShareTimeline(sharedata);
+	wx.onMenuShareQQ(sharedata);
+	wx.onMenuShareWeibo(sharedata);
+});
+</script>
+</body>
+</html>

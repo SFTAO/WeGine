@@ -1,0 +1,554 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns="http://www.we7.cc" versionCode="0.8,1.0">
+	<application setting="true">
+		<name><![CDATA[聚合客服]]></name>
+		<identifie><![CDATA[cy163_customerservice]]></identifie>
+		<version><![CDATA[25.3.0]]></version>
+		<type><![CDATA[biz]]></type>
+		<ability><![CDATA[仿微信聊天，适应于所有场景]]></ability>
+		<description><![CDATA[仿微信聊天，适应于所有场景]]></description>
+		<author><![CDATA[懒人源码]]></author>
+		<url><![CDATA[https://www.lanrenzhijia.com/]]></url>
+	</application>
+
+	<platform>
+		<subscribes>
+		</subscribes>
+
+		<handles>
+			<message type="text" />
+			<message type="image" />
+			<message type="voice" />
+		</handles>
+
+		<rule embed="true" />
+		<card embed="false" />
+		
+		<supports>
+			<item type="app" />
+		</supports>
+        <plugins>
+			<item name="cy163_customerservice_plugin_p"/></plugins> 
+        <plugin-main name="" />
+
+	</platform>
+
+	<bindings>
+		<cover>
+			<entry title="系统入口" do="chosekefu" state="" direct="false"/>
+			<entry title="前端管理员入口(公众号)" do="qdadmin" state="" direct="false"/>
+			<entry title="客服工作台(公众号)" do="kefucenter" state="" direct="false"/>
+			<entry title="前端管理员入口(小程序)" do="xcxqdadmin" state="" direct="false"/>
+			<entry title="客服工作台(小程序)" do="mychatxcx" state="" direct="false"/>
+			<entry title="常见问题中心" do="helpcenter" state="" direct="false"/>
+		</cover>
+		<menu>
+			<entry title="客服管理" do="cservice" state="" direct="false"/>
+			<entry title="聊天管理" do="chatlist" state="" direct="false"/>
+			<entry title="群聊管理" do="group" state="" direct="false"/>
+			<entry title="幻灯片管理" do="adv" state="" direct="false"/>
+			<entry title="客服统计" do="tongji" state="" direct="false"/>
+			<entry title="客户管理" do="kehu" state="" direct="false"/>
+			<entry title="常见问题管理" do="cjwt" state="" direct="false"/>
+			<entry title="自动回复管理" do="zdhf" state="" direct="false"/>
+			<entry title="小程序管理" do="xcx" state="" direct="false"/>
+			<entry title="小程序客服管理" do="xcxcservice" state="" direct="false"/>
+		</menu>
+		<page>
+			<entry title="小程序客服首页" do="/cy163_customerservice/pages/index/index" state="" direct="false"/>
+		</page>
+
+	</bindings>
+
+	<permissions>
+	</permissions>
+
+	<install><![CDATA[
+CREATE TABLE IF NOT EXISTS `ims_messikefu_adv` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `weid` int(11) DEFAULT '0',
+  `advname` varchar(50) DEFAULT '',
+  `link` varchar(255) DEFAULT '',
+  `thumb` varchar(255) DEFAULT '',
+  `displayorder` int(11) DEFAULT '0',
+  `endtime` int(11) NOT NULL,
+  `isdadi` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_biaoqian` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) NOT NULL,
+  `kefuopenid` varchar(200) NOT NULL,
+  `fensiopenid` varchar(200) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `realname` varchar(50) NOT NULL,
+  `telphone` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_chat` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) NOT NULL,
+  `openid` varchar(100) NOT NULL,
+  `toopenid` varchar(100) NOT NULL,
+  `content` text NOT NULL,
+  `time` int(11) NOT NULL,
+  `nickname` varchar(50) NOT NULL,
+  `avatar` varchar(200) NOT NULL,
+  `type` tinyint(1) NOT NULL,
+  `hasread` tinyint(1) NOT NULL,
+  `fkid` int(11) NOT NULL,
+  `yuyintime` smallint(6) NOT NULL,
+  `hasyuyindu` tinyint(1) NOT NULL,
+  `isjqr` tinyint(1) NOT NULL,
+  `fansdel` tinyint(1) NOT NULL,
+  `kefudel` tinyint(1) NOT NULL,
+  `isck` tinyint(1) NOT NULL,
+  `mp3du` tinyint(1) NOT NULL,
+  `istuwen` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_cservice` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `ctype` tinyint(1) NOT NULL,
+  `content` varchar(100) NOT NULL,
+  `thumb` varchar(255) NOT NULL,
+  `displayorder` int(11) NOT NULL,
+  `starthour` smallint(6) NOT NULL,
+  `endhour` smallint(6) NOT NULL,
+  `autoreply` varchar(200) NOT NULL,
+  `isonline` tinyint(1) NOT NULL,
+  `groupid` int(11) NOT NULL,
+  `fansauto` text NOT NULL,
+  `kefuauto` text NOT NULL,
+  `isautosub` tinyint(1) NOT NULL,
+  `iskefuqrcode` tinyint(1) NOT NULL,
+  `kefuqrcode` varchar(200) NOT NULL,
+  `ishow` tinyint(1) NOT NULL,
+  `notonline` varchar(255) NOT NULL,
+  `lingjie` tinyint(1) NOT NULL,
+  `typename` varchar(50) NOT NULL,
+  `isgly` tinyint(1) NOT NULL,
+  `iszx` tinyint(1) NOT NULL,
+  `isrealzx` tinyint(1) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `pwd` varchar(50) NOT NULL,
+  `djkey` varchar(30) NOT NULL,
+  `isxingqi` tinyint(1) NOT NULL,
+  `day1` tinyint(1) NOT NULL,
+  `day2` tinyint(1) NOT NULL,
+  `day3` tinyint(1) NOT NULL,
+  `day4` tinyint(1) NOT NULL,
+  `day5` tinyint(1) NOT NULL,
+  `day6` tinyint(1) NOT NULL,
+  `day7` tinyint(1) NOT NULL,
+  `beibang` tinyint(1) NOT NULL,
+  `bdchat` tinyint(1) NOT NULL,
+  `cangzh` tinyint(1) NOT NULL,
+  `gzhqzval` int(11) NOT NULL,
+  `gzhqzval2` int(11) NOT NULL,
+  `nowfkid` int(11) NOT NULL,
+  `nowjdnum` int(11) NOT NULL,
+  `ispczx` tinyint(1) NOT NULL,
+  `autoreplyimg` varchar(200) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_cservicegroup` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `thumb` varchar(255) NOT NULL,
+  `displayorder` int(11) NOT NULL,
+  `qrtext` varchar(50) NOT NULL,
+  `qrbg` varchar(20) NOT NULL,
+  `qrcolor` varchar(20) NOT NULL,
+  `cangroup` tinyint(1) NOT NULL,
+  `typename` varchar(50) NOT NULL,
+  `ishow` tinyint(1) NOT NULL,
+  `sanbs` varchar(50) NOT NULL,
+  `sanremark` varchar(200) NOT NULL,
+  `bsid` int(11) NOT NULL,
+  `qrright` int(11) NOT NULL,
+  `qrbottom` int(11) NOT NULL,
+  `fid` int(11) NOT NULL,
+  `notext` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_fanskefu` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) NOT NULL,
+  `fansopenid` varchar(100) NOT NULL,
+  `kefuopenid` varchar(100) NOT NULL,
+  `fansavatar` varchar(200) NOT NULL,
+  `kefuavatar` varchar(200) NOT NULL,
+  `fansnickname` varchar(100) NOT NULL,
+  `kefunickname` varchar(100) NOT NULL,
+  `lasttime` int(11) NOT NULL,
+  `notread` int(11) NOT NULL,
+  `lastcon` varchar(255) NOT NULL,
+  `kefulasttime` int(11) NOT NULL,
+  `kefulastcon` varchar(255) NOT NULL,
+  `kefunotread` int(11) NOT NULL,
+  `msgtype` smallint(6) NOT NULL,
+  `kefumsgtype` smallint(6) NOT NULL,
+  `guanlinum` int(11) NOT NULL,
+  `ishei` tinyint(1) NOT NULL,
+  `fansdel` tinyint(1) NOT NULL,
+  `kefudel` tinyint(1) NOT NULL,
+  `fszx` tinyint(1) NOT NULL,
+  `kfzx` tinyint(1) NOT NULL,
+  `isxcx` tinyint(1) NOT NULL,
+  `bdopenid` varchar(100) NOT NULL,
+  `fangke` text NOT NULL,
+  `nowjd` tinyint(1) NOT NULL,
+  `jdtime` int(11) NOT NULL,
+  `wherefrom` tinyint(1) NOT NULL,
+  `goodsmsg` text NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_fromck` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `weid` int(11) DEFAULT '0',
+  `msgid` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `msgid` (`msgid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_group` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) NOT NULL,
+  `groupname` varchar(100) NOT NULL,
+  `thumb` varchar(200) NOT NULL,
+  `admin` varchar(100) NOT NULL,
+  `time` int(11) NOT NULL,
+  `autoreply` varchar(200) NOT NULL,
+  `quickcon` text NOT NULL,
+  `isautosub` tinyint(1) NOT NULL,
+  `cservicegroupid` int(11) NOT NULL,
+  `lasttime` int(11) NOT NULL,
+  `maxnum` int(11) NOT NULL,
+  `isguanzhu` tinyint(1) NOT NULL,
+  `jinyan` tinyint(1) NOT NULL,
+  `isshenhe` tinyint(1) NOT NULL,
+  `autotx` tinyint(1) NOT NULL,
+  `isfs` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_groupchat` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `nickname` varchar(100) NOT NULL,
+  `avatar` varchar(255) NOT NULL,
+  `weid` int(11) NOT NULL,
+  `groupid` int(11) NOT NULL,
+  `openid` varchar(100) NOT NULL,
+  `content` text NOT NULL,
+  `time` int(11) NOT NULL,
+  `type` tinyint(1) NOT NULL,
+  `yuyintime` smallint(6) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_groupmember` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) NOT NULL,
+  `groupid` int(11) NOT NULL,
+  `openid` varchar(100) NOT NULL,
+  `nickname` varchar(50) NOT NULL,
+  `avatar` varchar(255) NOT NULL,
+  `type` tinyint(1) NOT NULL,
+  `status` tinyint(1) NOT NULL,
+  `intime` int(11) NOT NULL,
+  `lasttime` int(11) NOT NULL,
+  `notread` int(11) NOT NULL,
+  `txkaiguan` tinyint(1) NOT NULL,
+  `isdel` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_groupvoicedu` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) NOT NULL,
+  `groupid` int(11) NOT NULL,
+  `gchatid` int(11) NOT NULL,
+  `openid` varchar(200) NOT NULL,
+  `content` varchar(200) NOT NULL,
+  `time` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_kefuandcjwt` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) NOT NULL,
+  `kefuid` int(11) NOT NULL,
+  `wtid` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_kefuandgroup` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) NOT NULL,
+  `kefuid` int(11) NOT NULL,
+  `groupid` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_kuaijie` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) DEFAULT '0',
+  `kjtype` tinyint(1) DEFAULT '0',
+  `con` varchar(255) NOT NULL,
+  `thumb` varchar(255) NOT NULL,
+  `kfid` int(11) NOT NULL,
+  `allcon` text NOT NULL,
+  `displayorder` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_pingjia` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) NOT NULL,
+  `kefuopenid` varchar(200) NOT NULL,
+  `fensiopenid` varchar(200) NOT NULL,
+  `pingtype` tinyint(1) NOT NULL,
+  `content` varchar(255) NOT NULL,
+  `time` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_sanchat` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) NOT NULL,
+  `sanfkid` int(11) NOT NULL,
+  `content` text NOT NULL,
+  `time` int(11) NOT NULL,
+  `type` tinyint(1) NOT NULL,
+  `openid` varchar(100) NOT NULL,
+  `yuyintime` smallint(6) NOT NULL,
+  `hasyuyindu` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_sanfanskefu` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) NOT NULL,
+  `fansopenid` varchar(100) NOT NULL,
+  `kefuopenid` varchar(100) NOT NULL,
+  `fansavatar` varchar(200) NOT NULL,
+  `kefuavatar` varchar(200) NOT NULL,
+  `fansnickname` varchar(100) NOT NULL,
+  `kefunickname` varchar(100) NOT NULL,
+  `lasttime` int(11) NOT NULL,
+  `notread` int(11) NOT NULL,
+  `lastcon` varchar(255) NOT NULL,
+  `msgtype` smallint(6) NOT NULL,
+  `seetime` int(11) NOT NULL,
+  `qudao` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_wenzhang` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) NOT NULL,
+  `title` varchar(200) NOT NULL,
+  `des` text NOT NULL,
+  `views` int(11) NOT NULL,
+  `addtime` int(11) NOT NULL,
+  `paixu` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_xcx` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `uniacid` int(11) DEFAULT NULL,
+  `name` varchar(30) DEFAULT NULL,
+  `gh_id` varchar(30) DEFAULT NULL,
+  `appid` varchar(30) DEFAULT NULL,
+  `secret` varchar(50) DEFAULT NULL,
+  `token` varchar(50) DEFAULT NULL,
+  `aeskey` varchar(50) DEFAULT NULL,
+  `url` varchar(200) DEFAULT NULL,
+  `access_token` text NOT NULL,
+  `guoqitime` int(11) NOT NULL,
+  `status` tinyint(1) NOT NULL,
+  `admins` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_xcxauto` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) DEFAULT NULL,
+  `kfid` int(11) NOT NULL,
+  `name` varchar(30) DEFAULT NULL,
+  `msgtype` varchar(30) NOT NULL,
+  `pagepath` varchar(100) NOT NULL,
+  `pagethumb` varchar(255) NOT NULL,
+  `title` varchar(100) NOT NULL,
+  `description` varchar(100) NOT NULL,
+  `url` varchar(200) NOT NULL,
+  `thumb_url` varchar(200) NOT NULL,
+  `thumb` varchar(255) NOT NULL,
+  `paixu` int(11) NOT NULL,
+  `iszdhf` tinyint(1) NOT NULL,
+  `zdhftitle` varchar(100) NOT NULL,
+  `zdhftype` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_xcxchat` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) NOT NULL,
+  `openid` varchar(100) NOT NULL,
+  `toopenid` varchar(100) NOT NULL,
+  `content` text NOT NULL,
+  `time` int(11) NOT NULL,
+  `msgtype` varchar(50) NOT NULL,
+  `fkid` int(11) NOT NULL,
+  `gh_id` varchar(50) NOT NULL,
+  `msgid` varchar(50) NOT NULL,
+  `mediaId` varchar(100) NOT NULL,
+  `title` varchar(100) NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `url` varchar(255) NOT NULL,
+  `thumb_url` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_xcxcservice` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `content` varchar(100) NOT NULL,
+  `thumb` varchar(255) NOT NULL,
+  `displayorder` int(11) NOT NULL,
+  `kefuauto` text NOT NULL,
+  `isautosub` tinyint(1) NOT NULL,
+  `xcxid` int(11) NOT NULL,
+  `jhtext` varchar(50) NOT NULL,
+  `jhname` varchar(100) NOT NULL,
+  `autoreply` varchar(100) NOT NULL,
+  `gzhqzval` int(11) NOT NULL,
+  `lingjie` tinyint(1) NOT NULL,
+  `starthour` smallint(6) NOT NULL,
+  `endhour` smallint(6) NOT NULL,
+  `isxingqi` tinyint(1) NOT NULL,
+  `day1` tinyint(1) NOT NULL,
+  `day2` tinyint(1) NOT NULL,
+  `day3` tinyint(1) NOT NULL,
+  `day4` tinyint(1) NOT NULL,
+  `day5` tinyint(1) NOT NULL,
+  `day6` tinyint(1) NOT NULL,
+  `day7` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_xcxfanskefu` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) NOT NULL,
+  `fansopenid` varchar(100) NOT NULL,
+  `kefuopenid` varchar(100) NOT NULL,
+  `fansavatar` varchar(200) NOT NULL,
+  `kefuavatar` varchar(200) NOT NULL,
+  `fansnickname` varchar(100) NOT NULL,
+  `kefunickname` varchar(100) NOT NULL,
+  `lasttime` int(11) NOT NULL,
+  `notread` int(11) NOT NULL,
+  `lastcon` varchar(255) NOT NULL,
+  `msgtype` varchar(30) NOT NULL,
+  `gh_id` varchar(50) NOT NULL,
+  `createtime` int(11) NOT NULL,
+  `sessionfrom` varchar(100) NOT NULL,
+  `huifunum` int(11) NOT NULL,
+  `nowkefu` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_zdhf` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) NOT NULL,
+  `title` varchar(200) NOT NULL,
+  `content` text NOT NULL,
+  `type` tinyint(1) NOT NULL,
+  `paixu` int(11) NOT NULL,
+  `hftype` tinyint(1) NOT NULL,
+  `imgcon` varchar(200) NOT NULL,
+  `allcon` text NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+
+CREATE TABLE IF NOT EXISTS `ims_messikefu_zhuizong` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `weid` int(11) NOT NULL,
+  `kefuopenid` varchar(200) NOT NULL,
+  `kefuname` varchar(50) NOT NULL,
+  `kefuavatar` varchar(200) NOT NULL,
+  `fansopenid` varchar(200) NOT NULL,
+  `fansavatar` varchar(200) NOT NULL,
+  `fansname` varchar(50) NOT NULL,
+  `content` text NOT NULL,
+  `time` int(11) NOT NULL,
+  `zztype` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+]]></install>
+	<uninstall><![CDATA[DROP TABLE IF EXISTS `ims_messikefu_adv`;
+DROP TABLE IF EXISTS `ims_messikefu_biaoqian`;
+DROP TABLE IF EXISTS `ims_messikefu_chat`;
+DROP TABLE IF EXISTS `ims_messikefu_cservice`;
+DROP TABLE IF EXISTS `ims_messikefu_cservicegroup`;
+DROP TABLE IF EXISTS `ims_messikefu_fanskefu`;
+DROP TABLE IF EXISTS `ims_messikefu_fromck`;
+DROP TABLE IF EXISTS `ims_messikefu_group`;
+DROP TABLE IF EXISTS `ims_messikefu_groupchat`;
+DROP TABLE IF EXISTS `ims_messikefu_groupmember`;
+DROP TABLE IF EXISTS `ims_messikefu_groupvoicedu`;
+DROP TABLE IF EXISTS `ims_messikefu_kefuandcjwt`;
+DROP TABLE IF EXISTS `ims_messikefu_kefuandgroup`;
+DROP TABLE IF EXISTS `ims_messikefu_kuaijie`;
+DROP TABLE IF EXISTS `ims_messikefu_pingjia`;
+DROP TABLE IF EXISTS `ims_messikefu_sanchat`;
+DROP TABLE IF EXISTS `ims_messikefu_sanfanskefu`;
+DROP TABLE IF EXISTS `ims_messikefu_wenzhang`;
+DROP TABLE IF EXISTS `ims_messikefu_xcx`;
+DROP TABLE IF EXISTS `ims_messikefu_xcxauto`;
+DROP TABLE IF EXISTS `ims_messikefu_xcxchat`;
+DROP TABLE IF EXISTS `ims_messikefu_xcxcservice`;
+DROP TABLE IF EXISTS `ims_messikefu_xcxfanskefu`;
+DROP TABLE IF EXISTS `ims_messikefu_zdhf`;
+DROP TABLE IF EXISTS `ims_messikefu_zhuizong`;
+]]></uninstall>
+	<upgrade><![CDATA[upgrade.php]]></upgrade>
+
+</manifest>

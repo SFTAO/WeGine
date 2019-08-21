@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1,user-scalable=no">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>和{$sanfanskefu['fansnickname']}的对话</title>
+    <link rel="stylesheet" href="{MD_ROOT}static/iconfont/iconfont.css?v=20171128"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/css/weui.min.css"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/css/jquery-weui.min.css"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/newui/css/common.css?v=20171128"/>
+	<link rel="stylesheet" href="{MD_ROOT}/emoji/emoji.css"/>
+	<link rel="stylesheet" href="{MD_ROOT}static/newui/css/swiper-3.3.1.min.css"/>
+	{php echo register_jssdk(false);}
+    <script>
+        var deviceWidth = document.documentElement.clientWidth;
+        document.documentElement.style.fontSize = deviceWidth / 7.5 + 'px';
+    </script>
+	<style>
+	.back{width: 0.7rem;height: 0.7rem;line-height: 0.7rem;border-radius: 0.7rem;text-align: center;font-size: 0.28rem;position: fixed;z-index: 98;background: #000;opacity:0.6;color: #fff;top: 0.2rem;left: 0.2rem;}
+	
+	body,html,#messibox{width:100%;height:100%;background:#f5f5f5;}
+	#messibox{
+		-webkit-box-orient: vertical;
+		-webkit-flex-direction: column;
+		-moz-flex-direction: column;
+		-ms-flex-direction: column;
+		-o-flex-direction: column;
+		flex-direction: column;
+	}
+	#messibox #chatcon{-webkit-box-flex:1; -moz-box-flex:1;-webkit-flex:1;-ms-flex:1;flex:1;width:100%;font-size:0.28rem;overflow-x:hidden;overflow:auto;-webkit-overflow-scrolling:touch;background:#f5f5f5;}
+	
+	#chatcon a{color:#999;word-wrap:break-word;}
+	#chatcon .time{font-size:0.28rem;margin-top:0.2rem;color:#666;}
+	#chatcon .left{padding:0.2rem;}
+	#chatcon .left img.avatar{width:0.8rem;height:0.8rem;border-radius:0.1rem;}
+	#chatcon .left .con{-webkit-box-flex:1; -moz-box-flex:1;-webkit-flex:1;-ms-flex:1;flex:1;margin-left:0.2rem;}
+	#chatcon .left .con .triangle-left{width:0;height:0.3rem;border-top:0.15rem solid transparent;border-bottom:0.15rem solid transparent;border-right:0.15rem solid #fff;margin-top:0.25rem;}
+	#chatcon .left .con .concon{border-radius:0.1rem;background:#fff;color:#333;min-width:0.8rem;max-width:4.6rem;font-size:0.3rem;line-height:0.4rem;padding:0.2rem;width:auto;}
+	
+	#chatcon .right{padding:0.2rem;}
+	#chatcon .right img.avatar{width:0.8rem;height:0.8rem;border-radius:0.1rem;}
+	#chatcon .right .con{-webkit-box-flex:1; -moz-box-flex:1;-webkit-flex:1;-ms-flex:1;flex:1;margin-right:0.2rem;}
+	#chatcon .right .con .triangle-right{width:0;height:0.3rem;border-top:0.15rem solid transparent;border-bottom:0.15rem solid transparent;border-left:0.15rem solid #E64340;margin-top:0.25rem;}
+	#chatcon .right .con .concon{border-radius:0.1rem;background:#E64340;color:#fff;min-width:0.8rem;max-width:4.6rem;font-size:0.3rem;line-height:0.4rem;padding:0.2rem;width:auto;}
+	
+	#messifooter{height:1rem;background:#F5F5F7;width:100%;border-top:#D6D6D8 solid 1px;padding:0.1rem 0;}
+	#messifooter .iconfont{width:0.8rem;height:0.8rem;line-height:0.8rem;text-align:center;color:#828388;font-size:0.58rem;}
+	#messifooter .input{-webkit-box-flex:1; -moz-box-flex:1;-webkit-flex:1;-ms-flex:1;flex:1;margin-top:0.04rem;}
+	#messifooter .input input{display:block;width:100%;border: solid 1px #DCDCDE;font-size:0.3rem;text-indent:5px;color:#333;border-radius:0.05rem;background:#fff;padding:0.1rem 0;height:0.5rem;line-height:0.5rem;-webkit-appearance: none;}
+	#messifooter .saybutton {-webkit-box-flex:1; -moz-box-flex:1;-webkit-flex:1;-ms-flex:1;flex:1;border: solid 1px #DCDCDE;font-size:0.3rem;text-indent:5px;color:#777;border-radius:0.05rem;height:0.7rem;line-height:0.7rem;margin-top:0.04rem;font-weight:bold;user-select:none;text-align:center;}
+	#messifooter .docomment{width:1rem;line-height:0.7rem;height:0.7rem;text-align:center;background:#E64340;color:#fff;font-size:0.28rem;border-radius:0.05rem;margin-top:0.05rem;margin-right:0.1rem;margin-left:0.2rem;}
+	
+	
+	.fx-audio {
+		position: fixed;
+		z-index: 12;
+		left: 30%;
+		width:40%;
+		top: 30%;
+		font-size: 0.32rem;
+		color: #fff;
+		background: #000;
+		opacity: 0.7;
+		border-radius: 0.15rem;
+		text-align:center;
+		padding:0.2rem;
+	}
+	.fx-audio .audio-start{font-size:0.7rem;height:0.7rem;}
+	
+
+	
+	.weui-photo-browser-modal{z-index:99;}
+	.kongflex{-webkit-box-flex:1; -moz-box-flex:1;-webkit-flex:1;-ms-flex:1;flex:1;font-size:0.28rem;padding:0.2rem 0.1rem;color:#666;}
+	
+	
+	#chatcon .right .con .concon{background:{php echo $this->module["config"]['temcolor']};}
+	
+	.weui-pull-to-refresh{margin-top:0;}
+
+	#messifooter .docomment{background:{php echo $this->module["config"]['temcolor']};}
+	{if $this->module["config"]['temcolor']}
+	#chatcon .right .con .triangle-right{border-left:0.15rem solid {php echo $this->module["config"]['temcolor']};}
+	{/if}
+	</style>
+</head>
+
+<body style="background-color:{php echo $this->module["config"]['bgcolor']};">
+{if $_SERVER['HTTP_REFERER']}
+<div class="back iconfont" onclick="history.go(-1)">&#xe612;</div>
+{/if}
+
+<div id="messibox" class="flex">
+
+<div id="chatcon" class="messibox">	
+	{loop $chatcon $row}
+		{if !empty($row['time'])}
+		<div class="time text-c">{php echo date('Y-m-d H:i:s',$row['time'])}</div>
+		{/if}
+		{if $row['openid'] != $openid}
+			<div class="left flex">
+				<img src="{$sanfanskefu['fansavatar']}" class="avatar" />
+				<div class="con flex">
+					<div class="triangle-left"></div>
+					{if $row['type'] == 2}
+					<div class="concon"><img src="{$row['content']}" class="sssbbb" /></div>
+					<div class="kongflex"></div>
+					{elseif $row['type'] == 3}
+						<div class="concon voiceplay" style="width:{php echo (($row['yuyintime'])/10)}rem;" onclick="playvoice('{$row['content']}',$(this).next('div').children('.weidu'));"><i class="a-icon iconfont">&#xe601;</i></div>
+						<div class="kongflex"">{$row['yuyintime']}''{if $row['hasyuyindu'] == 0 && $openid == $row['toopenid']}<span class="weidu" style="color:red;">未读</span>{/if}</div>
+					{else}
+						<div class="concon">{$row['content']}</div>
+						<div class="kongflex"></div>
+					{/if}
+				</div>
+			</div>
+		{else}
+			<div class="right flex">
+				<div class="con flex">
+					{if $row['type'] == 2}
+					<div class="kongflex"></div>
+					<div class="concon"><img src="{$row['content']}" class="sssbbb" /></div>
+					{elseif $row['type'] == 3}
+						<div class="kongflex text-r">{if $row['hasyuyindu'] == 0 && $openid == $row['toopenid']}<span class="weidu" style="color:red;">未读</span>{/if}{$row['yuyintime']}''</div>
+						<div class="concon voiceplay" style="width:{php echo (($row['yuyintime'])/10)}rem;" onclick="playvoice('{$row['content']}',$(this).next('div').children('.weidu'));"><i class="a-icon iconfont">&#xe601;</i></div>
+					{else}
+						<div class="kongflex"></div>
+						<div class="concon">{$row['content']}</div>
+					{/if}
+					<div class="triangle-right"></div>
+				</div>
+				<img src="{$sanfanskefu['kefuavatar']}" class="avatar" />
+			</div>
+		{/if}
+	{/loop}
+</div>	
+	
+	
+<div id="messifooter" class="flex">
+	{if !empty($_W['fans']['from_user'])}
+	<div class="camera iconfont">&#xe647;</div>
+	<div class="audio iconfont">&#xe686;</div>
+	<div class="jianpan iconfont hide" style="line-height:0.7rem;">&#xe689;</div>
+	{/if}
+	<div class="input">
+		<input id="chatcontent" onkeydown="KeyDown(event)" placeholder="请输入咨询内容..." />
+	</div>
+	<div class="saybutton hide">按住  说话</div>
+	<div class="docomment">发送</div>
+</div>
+
+<!--弹出正在录音区域-->
+<div class="fx-audio hide">
+	<i class="audio-start"><span class="iconfont">&#xe643;</span></i>
+	<p>正在录音中...</p>
+</div>
+</div>
+</body>
+<script src="{MD_ROOT}/static/newui/js/socket.io.js"></script>
+<script src="{MD_ROOT}/static/newui/js/jquery-3.1.1.min.js"></script>
+<script src="{MD_ROOT}/static/newui/js/jquery-weui.min.js"></script>
+<script src="{MD_ROOT}/static/newui/js/swiper.min.js"></script>
+<script>
+	var overscroll = function (els) {
+		for (var i = 0; i < els.length; ++i) {
+			var el = els[i];
+			el.addEventListener('touchstart', function () {
+				var top = this.scrollTop
+					, totalScroll = this.scrollHeight
+					, currentScroll = top + this.offsetHeight;
+				if (top === 0) {
+					this.scrollTop = 1;
+				} else if (currentScroll === totalScroll) {
+					this.scrollTop = top - 1;
+				}
+			});
+			el.addEventListener('touchmove', function (evt) {
+				if (this.offsetHeight < this.scrollHeight)
+					evt._isScroller = true;
+			});
+		}
+	};
+
+	//禁止body的滚动事件
+	document.body.addEventListener('touchmove', function (evt) {
+		if (!evt._isScroller) {
+			evt.preventDefault();
+		}
+	});
+
+	//给class为.content的元素加上自定义的滚动事件
+	overscroll(document.querySelectorAll('.messibox'));
+
+	var uid = "{$openid}";
+	var touid = "{$toopenid}";
+	var sendurl = "https://api.qiumipai.com:2121/?type=publish2&to="+touid;
+	var cansend = 1;
+    $(function(){
+		domInit();
+		// 连接服务端
+		var socket = io('https://api.qiumipai.com:2120');
+		// 连接后登录
+		socket.on('connect', function(){
+			socket.emit('login',{'uid':uid});
+		});
+
+		// 后端推送来消息时
+		socket.on('new_msg', function(msg){			
+			if(msg.toopenid == uid){
+				var returnmsg = '<div class="time text-c">'+msg.datetime+'</div>'
+							+'<div class="left flex">'
+								+'<img src="{$sanfanskefu['fansavatar']}" class="avatar" />'
+								+'<div class="con flex">'
+								+'<div class="triangle-left"></div>'
+								+ msg.content
+								+'<div class="kongflex">'+msg.wwwddd+'</div>'
+								+'</div>'
+							+'</div>';
+				$('#chatcon').append(returnmsg).animate({scrollTop:100000},300);
+			}
+		});
+
+		//点击发送按钮
+        $(".docomment").on("mousedown",function(){
+			addchat($("#chatcontent").val(),1,0);
+        });
+
+        //录音按钮
+		$(".audio").on("click",function(){
+			$(".audio,.input").addClass("hide");
+			$(".jianpan,.saybutton").removeClass("hide");
+		});
+		
+		//键盘
+		$(".jianpan").on("click",function(){
+			$(".audio,.input").removeClass("hide");
+			$(".jianpan,.saybutton").addClass("hide");
+		});
+		
+		$(".blackbg").on("click",function(){
+			$(".blackbg").addClass("hide");
+		})
+    });
+	
+	//发送消息到数据库
+	function addchat(content,type,yuyintime){
+		if(cansend == 1){
+			cansend = 0;
+			$.ajax({   
+				 url:"{php echo $this->createMobileUrl('sanchat',array('op'=>'addchat'))}",   
+				 type:'post', 
+				 data:{
+					toopenid:touid,
+					content:content,
+					qudao:'{$qudao}',
+					type:type,
+					yuyintime:yuyintime,
+				 },
+				 dataType:'json',
+				 success:function(data){   
+					if(data.error == 0){
+						var returnmsg = '<div class="time text-c">'+data.datetime+'</div>'
+									+'<div class="right flex">'
+										+'<div class="con flex">'
+											+'<div class="kongflex text-r">'+data.yuyincon+'</div>'
+											+ data.content
+											+'<div class="triangle-right"></div>'
+										+'</div>'
+										+'<img src="{$sanfanskefu['kefuavatar']}" class="avatar" />'
+									+'</div>';
+						$('#chatcon').append(returnmsg).animate({scrollTop:10000000},300);
+						$('#chatcontent').val("");
+						
+						$.ajax({   
+							url:sendurl,   
+							type:'get', 
+							data:{
+								content:content,
+								msgtype:type,
+								yuyintime:yuyintime,
+								sanchat:1,
+								toopenid:touid,
+							},
+							dataType:'jsonp',
+							success:function(data){ 
+							}
+						});
+					}else{
+						$.alert(data.msg);
+					}
+					cansend = 1;
+				 }
+			});
+		}
+	}
+	
+	function domInit(){
+		$("#chatcon").animate({scrollTop:10000000},300);
+    }
+	
+	function KeyDown(event){
+		if (event.keyCode==13){
+			event.returnValue=false;
+			event.cancel = true;
+			addchat($("#chatcontent").val(),1,0);
+		}
+	}
+	
+	function playvoice(serverid,obj){
+		wx.downloadVoice({
+			serverId: serverid,
+			success: function (res) {
+				wx.playVoice({
+					localId: res.localId, // 需要播放的音频的本地ID，由stopRecord接口获得
+				});
+				//刷新语音状态
+				$.ajax({   
+					url:"{php echo $this->createMobileUrl('sanchat',array('op'=>'shuaxinyuyin'))}",   
+					type:'post', 
+					data:{
+						content:serverid,
+					},
+					dataType:'json',
+					success:function(data){ 
+						if(data.error == 0){
+							obj.remove();
+						}
+					}
+				});
+			}
+		});
+	}
+</script>
+<script type="text/javascript">
+var images = {
+	localIds: [],
+};
+var voice = {
+	localId: '',
+	serverId: ''
+};
+$(function(){	
+	//按下录音假设全局变量已经在外部定义
+	$(".saybutton").on("touchstart",function(event){
+		event.preventDefault();
+		$(".saybutton").text("松开  结束");
+		START = new Date().getTime();
+		recordTimer = setTimeout(function(){
+			wx.startRecord({
+				success: function(){
+					localStorage.rainAllowRecord = 'true';
+					$(".fx-audio").removeClass('hide');
+					var num=59;
+					$(".audio-start").html('<span class="iconfont">&#xe643;</span>');
+					name = setInterval(function() {
+						if(num <= 10 && num > 0){
+							$(".audio-start").html(num);// 你倒计时显示的地方元素
+						}
+						num--;
+						if(num==0){          
+							clearInterval(name);
+							END = new Date().getTime();
+							wx.stopRecord({
+								success: function (res) {
+									voice.localId = res.localId;
+									$('.fx-audio').addClass("hide");
+									var yuyintime = (END - START);
+									uploadVoice(yuyintime);
+								},
+								fail: function (res) {
+									$.toast("停止录音动作发生异常", "forbidden");
+								}
+							});
+							$(".saybutton").text('按住  说话');
+						}
+					}, 1000);
+				},
+				cancel: function () {
+					$.toast("您拒绝授权录音", "cancel");
+				}
+			});
+		},300);
+	});
+
+	//松手结束录音
+	$(".saybutton").on('touchend', function(event){
+		event.preventDefault();
+		END = new Date().getTime();
+		$(".saybutton").text('按住  说话');
+		$('.fx-audio').addClass("hide");
+		if((END - START) < 1500){
+			END = 0;
+			START = 0;
+			//小于300ms，不录音
+			$.toast("录音时间太短", "forbidden");
+			clearTimeout(recordTimer);
+			wx.stopRecord();
+		}else{
+			wx.stopRecord({
+				success: function (res) {
+					voice.localId = res.localId;
+					var yuyintime = (END - START);
+					uploadVoice(yuyintime);
+			    },
+			    fail: function (res) {
+					$.toast("停止录音动作发生异常", "forbidden");
+			    }
+			});
+		}
+	});
+	//上传录音
+	function uploadVoice(yuyintime){
+		//调用微信的上传录音接口把本地录音先上传到微信的服务器
+		//不过，微信只保留3天，而我们需要长期保存，我们需要把资源从微信服务器下载到自己的服务器
+		wx.uploadVoice({
+			localId: voice.localId, // 需要上传的音频的本地ID，由stopRecord接口获得
+			isShowProgressTips: 1, // 默认为1，显示进度提示
+			success: function (res) {
+				//把录音在微信服务器上的id（res.serverId）发送到自己的服务器供下载。
+				addchat(res.serverId,3,yuyintime);
+			}
+		});
+	}
+	$('.camera').click(function(){
+		wx.chooseImage({
+			count: 3, // 最多选3张
+			sizeType: ['compressed'], // 可以指定是原图还是压缩图，默认二者都有
+			sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+			success: function(res) {
+				images.localIds = res.localIds; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
+				var i = 0; var length = images.localIds.length;
+				var upload = function() {
+					wx.uploadImage({
+						localId:'' + images.localIds[i],
+						isShowProgressTips: 1,
+						success: function(res) {
+							var serverId = res.serverId;
+							$.ajax({   
+								 url:"{php echo $this->createMobileUrl('getmedia')}",   
+								 type:'post', 
+								 data:{
+									media_id:serverId,
+								 },
+								 dataType:'json',
+								 success:function(data){   
+									if (data.error == 1) {
+										$.alert(data.message);
+									} else {
+										addchat(data.imgurl,2,0);
+									}  
+								 }
+							});
+							//如果还有照片，继续上传
+							i++;
+							if (i < length) {
+								upload();
+							}
+						}
+					});                    
+				};
+				upload();
+			}
+		});
+	});
+})
+
+</script>
+<script type="text/javascript">
+wx.ready(function () {
+	wx.hideOptionMenu();
+	//注册微信播放录音结束事件【一定要放在wx.ready函数内】
+	wx.onVoicePlayEnd({
+		success: function (res) {
+
+		}
+	});
+	wx.onVoiceRecordEnd({
+		complete: function (res) {
+			voice.localId = res.localId;
+			$.alert('录音时间已超过一分钟');
+		}
+	});
+});
+</script>
+</html>
